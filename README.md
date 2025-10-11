@@ -1,36 +1,195 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LinguaAI - Smart Language Learning App
 
-## Getting Started
+A comprehensive language learning MVP built with Next.js, Supabase, and Tailwind CSS. Features multi-language support, interactive quizzes, AI coaching, and PWA capabilities.
 
-First, run the development server:
+## Features
 
+### 🌍 Multi-Language Support
+- **English, Arabic (RTL + diacritics), Dutch, Indonesian, Malay, Thai, Khmer**
+- RTL (Right-to-Left) support for Arabic
+- Native language detection and display
+
+### 📱 Mobile-First Responsive Design
+- Optimized for mobile devices
+- Progressive Web App (PWA) ready
+- Offline capability with service worker
+- Touch-friendly interface
+
+### 📚 Vocabulary System
+- ~1000 words with categories
+- Audio integration via Google TTS
+- Image support for visual learning
+- Difficulty levels (Beginner, Intermediate, Advanced)
+
+### 🎯 Interactive Quizzes
+- 3 difficulty levels
+- Real-time feedback
+- Confetti animations for correct answers
+- Progress tracking
+
+### 🏆 Progress Tracking
+- XP (Experience Points) system
+- Daily streaks
+- Badges and achievements
+- Leaderboard
+- Level progression
+
+### 🧠 AI Features
+- AI pronunciation coach
+- Adaptive learning algorithms
+- Personalized feedback
+- Voice recognition support
+
+### ♿ Accessibility
+- Screen reader compatibility
+- Font size adjustment
+- High contrast mode
+- Caption support
+- Reduced motion options
+- Color blind support
+
+## Tech Stack
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS 4
+- **Database**: Supabase
+- **Icons**: Lucide React
+- **Animations**: Framer Motion, Canvas Confetti
+- **PWA**: Service Worker, Web App Manifest
+
+## Setup Instructions
+
+### 1. Clone the Repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd language-learning-app
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install Dependencies
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Environment Variables
+Create a `.env.local` file in the root directory:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 
-## Learn More
+# Google TTS API Key (optional)
+GOOGLE_TTS_API_KEY=your_google_tts_api_key_here
 
-To learn more about Next.js, take a look at the following resources:
+# OpenAI API Key for AI features
+OPENAI_API_KEY=your_openai_api_key_here
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4. Database Setup
+1. Create a new Supabase project
+2. Run the SQL schema from `database/schema.sql` in your Supabase SQL editor
+3. Update the environment variables with your Supabase credentials
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 5. Run the Development Server
+```bash
+npm run dev
+```
 
-## Deploy on Vercel
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project Structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+├── app/                    # Next.js app directory
+│   ├── page.tsx           # Homepage
+│   ├── quiz/              # Quiz pages
+│   ├── ai-coach/          # AI coach pages
+│   └── placement-test/    # Placement test pages
+├── components/            # React components
+│   ├── VocabularyCard.tsx
+│   ├── QuizComponent.tsx
+│   ├── ProgressTracker.tsx
+│   ├── AICoach.tsx
+│   ├── PlacementTest.tsx
+│   └── AccessibilitySettings.tsx
+├── lib/                   # Utility libraries
+│   ├── supabase.ts       # Supabase client
+│   └── pwa.ts            # PWA utilities
+├── database/              # Database schema
+│   └── schema.sql
+├── public/                # Static assets
+│   ├── manifest.json     # PWA manifest
+│   └── sw.js            # Service worker
+└── README.md
+```
+
+## Key Components
+
+### Homepage (`app/page.tsx`)
+- Language selection with RTL support
+- Progress tracking display
+- PWA installation banner
+- Bottom navigation
+
+### Quiz System (`components/QuizComponent.tsx`)
+- Interactive multiple choice questions
+- Real-time feedback
+- Confetti animations
+- Progress tracking
+
+### AI Coach (`components/AICoach.tsx`)
+- Voice recognition
+- Text-to-speech
+- Conversational AI
+- Pronunciation feedback
+
+### Accessibility (`components/AccessibilitySettings.tsx`)
+- Font size adjustment
+- High contrast mode
+- Screen reader support
+- Color blind assistance
+
+## PWA Features
+
+- **Offline Support**: Service worker caches essential resources
+- **Install Prompt**: Native app-like installation
+- **Manifest**: App metadata and icons
+- **Responsive**: Works on all device sizes
+
+## Database Schema
+
+The app uses Supabase with the following main tables:
+- `users` - User profiles and progress
+- `languages` - Supported languages
+- `vocabulary` - Word database
+- `quizzes` - Quiz questions and answers
+- `user_progress` - Learning progress tracking
+- `badges` - Achievement system
+
+## Deployment
+
+### Vercel (Recommended)
+1. Connect your GitHub repository to Vercel
+2. Add environment variables in Vercel dashboard
+3. Deploy automatically on push
+
+### Other Platforms
+- Netlify
+- Railway
+- DigitalOcean App Platform
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.
+
+## Support
+
+For support, email support@linguaai.com or create an issue in the repository.
