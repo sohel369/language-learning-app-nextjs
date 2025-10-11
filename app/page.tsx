@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { 
   Globe, 
   Settings, 
@@ -20,19 +21,14 @@ import {
 } from 'lucide-react';
 import { registerSW, installPWA } from '../lib/pwa';
 import AccessibilitySettings from '../components/AccessibilitySettings';
+import BottomNavigation from '../components/BottomNavigation';
+import { useLanguage, languages } from '../contexts/LanguageContext';
 
-const languages = [
-  { code: 'en', name: 'US English', native: 'English', flag: '🇺🇸', isRTL: false },
-  { code: 'ar', name: 'SA العربية', native: 'العربية', flag: '🇸🇦', isRTL: true },
-  { code: 'nl', name: 'NL Nederlands', native: 'Nederlands', flag: '🇳🇱', isRTL: false },
-  { code: 'id', name: 'ID Bahasa Indonesia', native: 'Bahasa Indonesia', flag: '🇮🇩', isRTL: false },
-  { code: 'ms', name: 'MY Bahasa Melayu', native: 'Bahasa Melayu', flag: '🇲🇾', isRTL: false },
-  { code: 'th', name: 'TH ไทย', native: 'ไทย', flag: '🇹🇭', isRTL: false },
-  { code: 'km', name: 'KH ខ្មែរ', native: 'ខ្មែរ', flag: '🇰🇭', isRTL: false },
-];
 
 export default function Home() {
-  const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const { currentLanguage, setCurrentLanguage, isRTL } = useLanguage();
+  
+  console.log('Homepage current language:', currentLanguage);
   const [showPWAInstall, setShowPWAInstall] = useState(true);
   const [user, setUser] = useState({
     streak: 7,
@@ -55,8 +51,9 @@ export default function Home() {
     }
   }, []);
 
-  const handleLanguageSelect = (code: string) => {
-    setSelectedLanguage(code);
+  const handleLanguageSelect = (language: any) => {
+    console.log('Homepage: Setting language to:', language);
+    setCurrentLanguage(language);
   };
 
   const dismissPWA = () => {
@@ -70,7 +67,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
       <header className="flex items-center justify-between p-4 md:p-6">
         <div className="flex items-center space-x-3">
@@ -129,6 +126,7 @@ export default function Home() {
         </div>
       </div>
 
+
       {/* Language Selection */}
       <div className="px-4 md:px-6 mb-6">
         <div className="flex items-center space-x-2 mb-4">
@@ -140,9 +138,9 @@ export default function Home() {
           {languages.map((lang) => (
             <button
               key={lang.code}
-              onClick={() => handleLanguageSelect(lang.code)}
+              onClick={() => handleLanguageSelect(lang)}
               className={`p-4 rounded-xl border-2 transition-all duration-200 ${
-                selectedLanguage === lang.code
+                currentLanguage.code === lang.code
                   ? 'border-blue-500 bg-blue-500/20'
                   : 'border-gray-600 bg-gray-800/50 hover:border-gray-500'
               }`}
@@ -181,30 +179,7 @@ export default function Home() {
       )}
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-sm border-t border-gray-700">
-        <div className="flex items-center justify-around py-2">
-          <button className="flex flex-col items-center space-y-1 p-3 text-blue-400">
-            <HomeIcon className="w-6 h-6" />
-            <span className="text-xs font-medium">Home</span>
-          </button>
-          <button className="flex flex-col items-center space-y-1 p-3 text-gray-400 hover:text-white">
-            <BookOpen className="w-6 h-6" />
-            <span className="text-xs font-medium">Lessons</span>
-          </button>
-          <button className="flex flex-col items-center space-y-1 p-3 text-gray-400 hover:text-white">
-            <Target className="w-6 h-6" />
-            <span className="text-xs font-medium">Quiz</span>
-          </button>
-          <button className="flex flex-col items-center space-y-1 p-3 text-gray-400 hover:text-white">
-            <Bot className="w-6 h-6" />
-            <span className="text-xs font-medium">AI Coach</span>
-          </button>
-          <button className="flex flex-col items-center space-y-1 p-3 text-gray-400 hover:text-white">
-            <User className="w-6 h-6" />
-            <span className="text-xs font-medium">Profile</span>
-          </button>
-        </div>
-      </nav>
+      <BottomNavigation />
 
       {/* Bottom padding for navigation */}
       <div className="h-20"></div>

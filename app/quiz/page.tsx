@@ -1,31 +1,63 @@
 'use client';
 
 import { useState } from 'react';
-import QuizComponent from '../../components/QuizComponent';
+import EnhancedQuiz from '../../components/EnhancedQuiz';
+import BottomNavigation from '../../components/BottomNavigation';
 import { ArrowLeft, Trophy } from 'lucide-react';
 import Link from 'next/link';
 
 const sampleQuestions = [
   {
     id: '1',
+    type: 'multiple-choice' as const,
     question: 'What does "hello" mean in Spanish?',
     options: ['Hola', 'Adiós', 'Gracias', 'Por favor'],
     correct_answer: 0,
-    explanation: '"Hola" is the Spanish word for "hello" or "hi".'
+    explanation: '"Hola" is the Spanish word for "hello" or "hi".',
+    difficulty: 'easy' as const,
+    category: 'greetings',
+    language: 'en'
   },
   {
     id: '2',
-    question: 'Which word means "thank you" in French?',
-    options: ['Bonjour', 'Merci', 'Au revoir', 'Excusez-moi'],
-    correct_answer: 1,
-    explanation: '"Merci" is the French word for "thank you".'
+    type: 'translation' as const,
+    question: 'مرحبا',
+    correct_answer: 'hello',
+    explanation: '"مرحبا" means "hello" in Arabic.',
+    difficulty: 'medium' as const,
+    category: 'greetings',
+    language: 'ar'
   },
   {
     id: '3',
-    question: 'How do you say "good morning" in German?',
-    options: ['Guten Tag', 'Guten Morgen', 'Gute Nacht', 'Auf Wiedersehen'],
-    correct_answer: 1,
-    explanation: '"Guten Morgen" means "good morning" in German.'
+    type: 'true-false' as const,
+    question: 'The Arabic word "وداعا" means "goodbye".',
+    correct_answer: true,
+    explanation: 'Correct! "وداعا" (wada\'an) means "goodbye" in Arabic.',
+    difficulty: 'easy' as const,
+    category: 'greetings',
+    language: 'ar'
+  },
+  {
+    id: '4',
+    type: 'fill-blank' as const,
+    question: 'Complete the Arabic word for water: م___',
+    correct_answer: 'اء',
+    explanation: 'The complete word is "ماء" (ma\'un) meaning water.',
+    difficulty: 'medium' as const,
+    category: 'basics',
+    language: 'ar'
+  },
+  {
+    id: '5',
+    type: 'audio' as const,
+    question: 'Listen to the audio and select the correct meaning.',
+    options: ['Hello', 'Goodbye', 'Thank you', 'Please'],
+    correct_answer: 0,
+    explanation: 'The audio says "مرحبا" which means "hello".',
+    difficulty: 'hard' as const,
+    category: 'greetings',
+    language: 'ar'
   }
 ];
 
@@ -103,23 +135,29 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
-      <div className="max-w-4xl mx-auto">
-        <Link href="/" className="inline-flex items-center space-x-2 text-white mb-6">
-          <ArrowLeft className="w-5 h-5" />
-          <span>Back to Home</span>
-        </Link>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="p-6 pb-24">
+        <div className="max-w-4xl mx-auto">
+          <Link href="/" className="inline-flex items-center space-x-2 text-white mb-6 hover:text-purple-300">
+            <ArrowLeft className="w-5 h-5" />
+            <span>Back to Home</span>
+          </Link>
         
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Language Quiz</h1>
           <p className="text-gray-400">Test your language knowledge with interactive questions</p>
         </div>
         
-        <QuizComponent 
+        <EnhancedQuiz 
           questions={sampleQuestions}
           onComplete={handleQuizComplete}
+          language="en"
         />
+        </div>
       </div>
+      
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 }

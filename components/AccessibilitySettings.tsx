@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   Settings, 
   Type, 
@@ -12,90 +12,11 @@ import {
   ZoomOut,
   RotateCcw
 } from 'lucide-react';
-
-interface AccessibilitySettings {
-  fontSize: 'small' | 'medium' | 'large' | 'extra-large';
-  highContrast: boolean;
-  screenReader: boolean;
-  captions: boolean;
-  reducedMotion: boolean;
-  colorBlind: 'none' | 'protanopia' | 'deuteranopia' | 'tritanopia';
-}
+import { useAccessibility } from '../contexts/AccessibilityContext';
 
 export default function AccessibilitySettings() {
   const [isOpen, setIsOpen] = useState(false);
-  const [settings, setSettings] = useState<AccessibilitySettings>({
-    fontSize: 'medium',
-    highContrast: false,
-    screenReader: false,
-    captions: true,
-    reducedMotion: false,
-    colorBlind: 'none'
-  });
-
-  useEffect(() => {
-    // Load saved settings from localStorage
-    const savedSettings = localStorage.getItem('accessibility-settings');
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
-    }
-  }, []);
-
-  useEffect(() => {
-    // Apply settings to the document
-    applySettings(settings);
-    // Save to localStorage
-    localStorage.setItem('accessibility-settings', JSON.stringify(settings));
-  }, [settings]);
-
-  const applySettings = (newSettings: AccessibilitySettings) => {
-    const root = document.documentElement;
-    
-    // Font size
-    const fontSizeMap = {
-      small: '14px',
-      medium: '16px',
-      large: '18px',
-      'extra-large': '20px'
-    };
-    root.style.fontSize = fontSizeMap[newSettings.fontSize];
-
-    // High contrast
-    if (newSettings.highContrast) {
-      root.classList.add('high-contrast');
-    } else {
-      root.classList.remove('high-contrast');
-    }
-
-    // Reduced motion
-    if (newSettings.reducedMotion) {
-      root.style.setProperty('--animation-duration', '0.01ms');
-    } else {
-      root.style.removeProperty('--animation-duration');
-    }
-
-    // Color blind support
-    root.setAttribute('data-colorblind', newSettings.colorBlind);
-  };
-
-  const updateSetting = <K extends keyof AccessibilitySettings>(
-    key: K,
-    value: AccessibilitySettings[K]
-  ) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
-  };
-
-  const resetSettings = () => {
-    const defaultSettings: AccessibilitySettings = {
-      fontSize: 'medium',
-      highContrast: false,
-      screenReader: false,
-      captions: true,
-      reducedMotion: false,
-      colorBlind: 'none'
-    };
-    setSettings(defaultSettings);
-  };
+  const { settings, updateSetting, resetSettings } = useAccessibility();
 
   return (
     <>
@@ -234,7 +155,7 @@ export default function AccessibilitySettings() {
                 </label>
                 <select
                   value={settings.colorBlind}
-                  onChange={(e) => updateSetting('colorBlind', e.target.value as AccessibilitySettings['colorBlind'])}
+                  onChange={(e) => updateSetting('colorBlind', e.target.value as 'none' | 'protanopia' | 'deuteranopia' | 'tritanopia')}
                   className="w-full p-3 bg-gray-700 text-white rounded-lg border border-gray-600 focus:border-purple-500 focus:outline-none"
                 >
                   <option value="none">None</option>

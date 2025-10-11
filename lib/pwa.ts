@@ -50,7 +50,7 @@ export const checkOnlineStatus = () => {
 
 export const addToHomeScreen = () => {
   // For iOS devices
-  if (window.navigator.standalone === false) {
+  if ((window.navigator as any).standalone === false) {
     // Show instructions for adding to home screen
     return true;
   }

@@ -40,7 +40,19 @@ export default function AICoach({ language, isRTL = false }: AICoachProps) {
     const recognition = new (window as any).webkitSpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = false;
-    recognition.lang = language === 'ar' ? 'ar-SA' : language === 'nl' ? 'nl-NL' : 'en-US';
+    
+    // Enhanced language detection for better Arabic support
+    const languageMap: { [key: string]: string } = {
+      'ar': 'ar-SA',
+      'nl': 'nl-NL', 
+      'id': 'id-ID',
+      'ms': 'ms-MY',
+      'th': 'th-TH',
+      'km': 'km-KH',
+      'en': 'en-US'
+    };
+    
+    recognition.lang = languageMap[language] || 'en-US';
 
     recognition.onstart = () => {
       setIsListening(true);
