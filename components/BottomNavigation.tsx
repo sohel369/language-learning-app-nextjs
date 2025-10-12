@@ -3,16 +3,18 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, BookOpen, Target, Bot, User } from 'lucide-react';
+import { useTranslation } from '../hooks/useTranslation';
 
 export default function BottomNavigation() {
   const pathname = usePathname();
+  const t = useTranslation();
 
   const navItems = [
-    { href: '/', icon: Home, label: 'Home' },
-    { href: '/lessons', icon: BookOpen, label: 'Lessons' },
-    { href: '/quiz', icon: Target, label: 'Quiz' },
-    { href: '/ai-coach', icon: Bot, label: 'AI Coach' },
-    { href: '/profile', icon: User, label: 'Profile' },
+    { href: '/', icon: Home, label: t('home') },
+    { href: '/lessons', icon: BookOpen, label: t('lessons') },
+    { href: '/quiz', icon: Target, label: t('quiz') },
+    { href: '/ai-coach', icon: Bot, label: t('aiCoach') },
+    { href: '/profile', icon: User, label: t('profile') },
   ];
 
   return (

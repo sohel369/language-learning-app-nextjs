@@ -1,280 +1,676 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, User, Settings, Trophy, Star, Flame, Award, Globe, Bell, Shield, Moon, Sun } from 'lucide-react';
 import Link from 'next/link';
+import { 
+  ArrowLeft, 
+  User, 
+  Mail, 
+  Award, 
+  Star, 
+  Flame, 
+  Settings, 
+  LogOut, 
+  Edit3,
+  Trophy,
+  Users,
+  Target,
+  Crown,
+  Zap,
+  Globe,
+  ChevronDown,
+  Check,
+  Bell,
+  Volume2,
+  Type,
+  Sun,
+  Moon,
+  Monitor,
+  Play
+} from 'lucide-react';
+import LiveLeaderboard from '../../components/LiveLeaderboard';
+import UserSettings from '../../components/UserSettings';
+import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useAccessibility } from '../../contexts/AccessibilityContext';
-import BottomNavigation from '../../components/BottomNavigation';
+import ProtectedRoute from '../../components/ProtectedRoute';
+
+const languages = [
+  { code: 'en', name: 'English', flag: '🇺🇸', native: 'US English' },
+  { code: 'ar', name: 'العربية', flag: '🇸🇦', native: 'SA العربية' },
+  { code: 'nl', name: 'Nederlands', flag: '🇳🇱', native: 'NL Nederlands' },
+  { code: 'th', name: 'ไทย', flag: '🇹🇭', native: 'TH ไทย' },
+  { code: 'km', name: 'ខ្មែរ', flag: '🇰🇭', native: 'KH ខ្មែរ' },
+  { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩', native: 'ID Bahasa Indonesia' },
+  { code: 'ms', name: 'Bahasa Melayu', flag: '🇲🇾', native: 'MY Bahasa Melayu' }
+];
+
+const achievements = [
+  {
+    id: 1,
+    name: 'Quick Learner',
+    description: 'Complete 10 lessons in one day',
+    icon: Zap,
+    unlocked: false,
+    color: 'text-yellow-400'
+  },
+  {
+    id: 2,
+    name: 'Streak Master',
+    description: 'Maintain a 7-day streak',
+    icon: Flame,
+    unlocked: false,
+    color: 'text-orange-400'
+  },
+  {
+    id: 3,
+    name: 'Vocabulary Champion',
+    description: 'Learn 300+ words',
+    icon: Crown,
+    unlocked: false,
+    color: 'text-purple-400'
+  },
+  {
+    id: 4,
+    name: 'Perfect Score',
+    description: 'Get 100% in 5 lessons',
+    icon: Star,
+    unlocked: false,
+    color: 'text-blue-400'
+  },
+  {
+    id: 5,
+    name: 'Social Butterfly',
+    description: 'Join the leaderboard',
+    icon: Users,
+    unlocked: false,
+    color: 'text-green-400'
+  }
+];
+
+const leaderboardData = [
+  { rank: 1, name: 'Ahmed', xp: 2500, streak: 15, avatar: 'A' },
+  { rank: 2, name: 'Sarah', xp: 2200, streak: 12, avatar: 'S' },
+  { rank: 3, name: 'Muhammad', xp: 1800, streak: 8, avatar: 'M' },
+  { rank: 4, name: 'Fatima', xp: 1600, streak: 7, avatar: 'F' },
+  { rank: 5, name: 'Ali', xp: 1400, streak: 6, avatar: 'A' }
+];
 
 export default function ProfilePage() {
+  const { user, signOut, refreshUser } = useAuth();
   const { currentLanguage, setCurrentLanguage, isRTL } = useLanguage();
   const { settings, updateSetting } = useAccessibility();
-  const [isDarkMode, setIsDarkMode] = useState(true);
-  const [notifications, setNotifications] = useState(true);
 
-  const userStats = {
-    streak: 7,
-    totalXP: 1250,
-    level: 3,
-    wordsLearned: 45,
-    lessonsCompleted: 12,
-    quizzesPassed: 8,
-    timeSpent: 24, // hours
-    rank: 156
+  const [currentTab, setCurrentTab] = useState('stats');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState(user?.name || '');
+  const [selectedLanguage, setSelectedLanguage] = useState('ar');
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
+  const [showInterfaceLanguage, setShowInterfaceLanguage] = useState(false);
+  
+
+  const handleSaveName = async () => {
+    // Here you would update the user's name in the database
+    setIsEditing(false);
   };
 
-  const achievements = [
-    { id: '1', name: 'First Steps', description: 'Complete your first lesson', icon: '🎯', earned: true, date: '2024-01-15' },
-    { id: '2', name: 'Streak Master', description: 'Maintain a 7-day streak', icon: '🔥', earned: true, date: '2024-01-20' },
-    { id: '3', name: 'Quiz Champion', description: 'Score 100% on a quiz', icon: '🏆', earned: true, date: '2024-01-18' },
-    { id: '4', name: 'Vocabulary Builder', description: 'Learn 100 words', icon: '📚', earned: false, date: null },
-    { id: '5', name: 'Language Explorer', description: 'Study for 10 hours', icon: '⏰', earned: false, date: null },
-  ];
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
-  const languages = [
-    { code: 'en', name: 'English', native: 'English', flag: '🇺🇸', isRTL: false },
-    { code: 'ar', name: 'Arabic', native: 'العربية', flag: '🇸🇦', isRTL: true },
-    { code: 'nl', name: 'Dutch', native: 'Nederlands', flag: '🇳🇱', isRTL: false },
-    { code: 'id', name: 'Indonesian', native: 'Bahasa Indonesia', flag: '🇮🇩', isRTL: false },
-    { code: 'ms', name: 'Malay', native: 'Bahasa Melayu', flag: '🇲🇾', isRTL: false },
-    { code: 'th', name: 'Thai', native: 'ไทย', flag: '🇹🇭', isRTL: false },
-    { code: 'km', name: 'Khmer', native: 'ខ្មែរ', flag: '🇰🇭', isRTL: false },
-  ];
+  const handleLanguageChange = (langCode: string) => {
+    setSelectedLanguage(langCode);
+    setShowLanguageDropdown(false);
+  };
+
+  const handleInterfaceLanguageChange = (langCode: string) => {
+    setShowInterfaceLanguage(false);
+    // Handle interface language change
+  };
+
+
+  const testNotification = (type: string) => {
+    // Handle test notification
+    console.log(`Testing ${type} notification`);
+    // You would implement actual notification testing here
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900" dir={isRTL ? 'rtl' : 'ltr'}>
-      <div className="p-6 pb-24">
-        <Link href="/" className="flex items-center space-x-3 text-white mb-6 hover:text-purple-300">
-          <ArrowLeft className="w-6 h-6" />
-          <span className="text-lg font-medium">Back to Home</span>
-        </Link>
-
-        {/* Profile Header */}
-        <div className="bg-gray-800/50 rounded-2xl p-6 mb-6">
-          <div className="flex items-center space-x-4 mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
-              <User className="w-8 h-8 text-white" />
+    <ProtectedRoute>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Header */}
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-lg">L</span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">Language Learner</h1>
-              <p className="text-gray-400">Level {userStats.level} • {userStats.totalXP} XP</p>
+              <h1 className="text-xl font-bold text-white">LinguaAI</h1>
+              <p className="text-sm text-gray-300">Smart Language Learning</p>
             </div>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-gray-700/50 rounded-lg p-3">
-              <div className="flex items-center space-x-2 mb-1">
-                <Flame className="w-4 h-4 text-orange-400" />
-                <span className="text-sm text-gray-400">Streak</span>
-              </div>
-              <div className="text-xl font-bold text-white">{userStats.streak}</div>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Flame className="w-5 h-5 text-orange-400" />
+              <span className="text-white font-semibold">{user?.streak || 0}</span>
             </div>
-            <div className="bg-gray-700/50 rounded-lg p-3">
-              <div className="flex items-center space-x-2 mb-1">
-                <Star className="w-4 h-4 text-yellow-400" />
-                <span className="text-sm text-gray-400">Words</span>
-              </div>
-              <div className="text-xl font-bold text-white">{userStats.wordsLearned}</div>
+            <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-sm">{user?.name?.charAt(0) || 'U'}</span>
             </div>
-            <div className="bg-gray-700/50 rounded-lg p-3">
-              <div className="flex items-center space-x-2 mb-1">
-                <Award className="w-4 h-4 text-blue-400" />
-                <span className="text-sm text-gray-400">Lessons</span>
-              </div>
-              <div className="text-xl font-bold text-white">{userStats.lessonsCompleted}</div>
-            </div>
-            <div className="bg-gray-700/50 rounded-lg p-3">
-              <div className="flex items-center space-x-2 mb-1">
-                <Trophy className="w-4 h-4 text-green-400" />
-                <span className="text-sm text-gray-400">Rank</span>
-              </div>
-              <div className="text-xl font-bold text-white">#{userStats.rank}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Language Settings */}
-        <div className="bg-gray-800/50 rounded-2xl p-6 mb-6">
-          <div className="flex items-center space-x-2 mb-4">
-            <Globe className="w-6 h-6 text-white" />
-            <h2 className="text-xl font-bold text-white">Learning Language</h2>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {languages.map((lang) => (
+            <button
+              onClick={handleSignOut}
+              className="text-red-400 hover:text-red-300 transition-colors text-sm"
+            >
+              Logout
+            </button>
+            <div className="flex space-x-2">
               <button
-                key={lang.code}
-                onClick={() => setCurrentLanguage(lang)}
-                className={`p-3 rounded-xl border-2 transition-all duration-200 ${
-                  currentLanguage.code === lang.code
-                    ? 'border-purple-500 bg-purple-500/20'
-                    : 'border-gray-600 bg-gray-700/50 hover:border-gray-500'
-                }`}
-                dir={lang.isRTL ? 'rtl' : 'ltr'}
+                onClick={() => setShowInterfaceLanguage(!showInterfaceLanguage)}
+                className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
               >
-                <div className="text-2xl mb-2">{lang.flag}</div>
-                <div className="text-sm font-medium text-white">{lang.name}</div>
+                US English
               </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Accessibility Settings */}
-        <div className="bg-gray-800/50 rounded-2xl p-6 mb-6">
-          <div className="flex items-center space-x-2 mb-4">
-            <Shield className="w-6 h-6 text-white" />
-            <h2 className="text-xl font-bold text-white">Accessibility</h2>
-          </div>
-          
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-white font-medium">High Contrast</div>
-                <div className="text-sm text-gray-400">Improve visibility</div>
-              </div>
               <button
-                onClick={() => updateSetting('highContrast', !settings.highContrast)}
-                className={`w-12 h-6 rounded-full transition-colors ${
-                  settings.highContrast ? 'bg-purple-600' : 'bg-gray-600'
-                }`}
+                onClick={() => setShowInterfaceLanguage(!showInterfaceLanguage)}
+                className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors"
               >
-                <div
-                  className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                    settings.highContrast ? 'translate-x-6' : 'translate-x-0.5'
-                  }`}
-                />
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-white font-medium">Screen Reader</div>
-                <div className="text-sm text-gray-400">Voice navigation support</div>
-              </div>
-              <button
-                onClick={() => updateSetting('screenReader', !settings.screenReader)}
-                className={`w-12 h-6 rounded-full transition-colors ${
-                  settings.screenReader ? 'bg-purple-600' : 'bg-gray-600'
-                }`}
-              >
-                <div
-                  className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                    settings.screenReader ? 'translate-x-6' : 'translate-x-0.5'
-                  }`}
-                />
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-white font-medium">Audio Captions</div>
-                <div className="text-sm text-gray-400">Text for audio content</div>
-              </div>
-              <button
-                onClick={() => updateSetting('captions', !settings.captions)}
-                className={`w-12 h-6 rounded-full transition-colors ${
-                  settings.captions ? 'bg-purple-600' : 'bg-gray-600'
-                }`}
-              >
-                <div
-                  className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                    settings.captions ? 'translate-x-6' : 'translate-x-0.5'
-                  }`}
-                />
+                SA العربية
               </button>
             </div>
           </div>
         </div>
 
-        {/* Achievements */}
-        <div className="bg-gray-800/50 rounded-2xl p-6 mb-6">
-          <div className="flex items-center space-x-2 mb-4">
-            <Trophy className="w-6 h-6 text-white" />
-            <h2 className="text-xl font-bold text-white">Achievements</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {achievements.map((achievement) => (
-              <div
-                key={achievement.id}
-                className={`p-4 rounded-xl border-2 transition-all duration-200 ${
-                  achievement.earned
-                    ? 'border-yellow-500 bg-yellow-500/10'
-                    : 'border-gray-600 bg-gray-700/30'
-                }`}
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="text-2xl">{achievement.icon}</div>
-                  <div className="flex-1">
-                    <div className="font-medium text-white">{achievement.name}</div>
-                    <div className="text-sm text-gray-400">{achievement.description}</div>
-                    {achievement.earned && achievement.date && (
-                      <div className="text-xs text-yellow-400 mt-1">
-                        Earned: {new Date(achievement.date).toLocaleDateString()}
-                      </div>
-                    )}
+        {/* Profile Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">Profile</h1>
+          <p className="text-white/70">Track your progress and customize your experience</p>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="flex space-x-1 mb-8 bg-white/10 rounded-xl p-1">
+          <button
+            onClick={() => setCurrentTab('stats')}
+            className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg transition-all ${
+              currentTab === 'stats' 
+                ? 'bg-purple-600 text-white' 
+                : 'text-white/70 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            <Target className="w-5 h-5" />
+            <span>Stats</span>
+          </button>
+          <button
+            onClick={() => setCurrentTab('settings')}
+            className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg transition-all ${
+              currentTab === 'settings' 
+                ? 'bg-purple-600 text-white' 
+                : 'text-white/70 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            <Settings className="w-5 h-5" />
+            <span>Settings</span>
+          </button>
+          <button
+            onClick={() => setCurrentTab('leaderboard')}
+            className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg transition-all ${
+              currentTab === 'leaderboard' 
+                ? 'bg-purple-600 text-white' 
+                : 'text-white/70 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            <Trophy className="w-5 h-5" />
+            <span>Leaderboard</span>
+          </button>
+        </div>
+
+        {/* Stats Tab */}
+        {currentTab === 'stats' && (
+          <div className="space-y-6">
+            {/* Profile Summary Card */}
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white">
+              <div className="flex items-center space-x-4 mb-4">
+                <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-2xl">{user?.name?.charAt(0) || 'U'}</span>
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold">{user?.name || 'User'}</h2>
+                  <p className="text-blue-100">Language Explorer</p>
+                  <div className="mt-2">
+                    <span className="inline-flex items-center px-3 py-1 bg-white/20 rounded-full text-sm">
+                      {languages.find(l => l.code === selectedLanguage)?.flag} {languages.find(l => l.code === selectedLanguage)?.native}
+                    </span>
                   </div>
-                  {achievement.earned && (
-                    <div className="text-green-400">✓</div>
-                  )}
                 </div>
               </div>
+              
+              <div className="grid grid-cols-4 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold">{user?.total_xp || 0}</div>
+                  <div className="text-blue-100 text-sm">Total XP</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold">{user?.streak || 0}</div>
+                  <div className="text-blue-100 text-sm">Day Streak</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold">{user?.level || 1}</div>
+                  <div className="text-blue-100 text-sm">Level</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold">0</div>
+                  <div className="text-blue-100 text-sm">Badges</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Learning Stats */}
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+              <h3 className="text-xl font-semibold text-white mb-4">Learning Stats</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-white">{user?.total_xp || 0}</div>
+                  <div className="text-white/70 text-sm">Total XP</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-white">{user?.streak || 0}</div>
+                  <div className="text-white/70 text-sm">Day Streak</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-white">0</div>
+                  <div className="text-white/70 text-sm">Words Learned</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-white">{user?.level || 1}</div>
+                  <div className="text-white/70 text-sm">Level</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Learning Progress */}
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+              <h3 className="text-xl font-semibold text-white mb-4">Learning Progress</h3>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-white font-medium">Current Level Progress</span>
+                    <span className="text-white/70 text-sm">0 / 200 XP</span>
+                  </div>
+                  <div className="w-full bg-gray-700 rounded-full h-3">
+                    <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full" style={{ width: '0%' }}></div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-white font-medium">Weekly Goal</span>
+                    <span className="text-white/70 text-sm">0 / 7 days</span>
+                  </div>
+                  <div className="w-full bg-gray-700 rounded-full h-3">
+                    <div className="bg-gradient-to-r from-green-500 to-blue-500 h-3 rounded-full" style={{ width: '100%' }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Achievements */}
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+              <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+                <Trophy className="w-6 h-6 mr-2" />
+                Achievements
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {achievements.map((achievement) => (
+                  <div key={achievement.id} className="p-4 bg-white/5 rounded-xl border border-white/10">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <achievement.icon className={`w-6 h-6 ${achievement.color}`} />
+                      <span className="text-white font-medium">{achievement.name}</span>
+                    </div>
+                    <p className="text-white/70 text-sm">{achievement.description}</p>
+                    {!achievement.unlocked && (
+                      <div className="mt-2 text-xs text-white/50">Not unlocked yet</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 p-4 bg-yellow-500/20 border border-yellow-500/50 rounded-xl">
+                <div className="flex items-center space-x-2">
+                  <Award className="w-5 h-5 text-yellow-400" />
+                  <span className="text-yellow-400 font-medium">No achievements yet</span>
+                </div>
+                <p className="text-yellow-200 text-sm mt-1">Keep learning to unlock them!</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Settings Tab */}
+        {currentTab === 'settings' && (
+          <UserSettings />
+        )}
+
+        {/* Legacy Settings Tab - keeping for reference */}
+        {false && currentTab === 'settings' && (
+          <div className="space-y-6">
+            {/* Account Information */}
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+              <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+                <User className="w-6 h-6 mr-2" />
+                Account Information
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-white/80 text-sm font-medium mb-2">Display Name</label>
+                  {isEditing ? (
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="flex-1 px-3 py-2 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                      <button
+                        onClick={handleSaveName}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setIsEditing(false)}
+                        className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <span className="text-white">{user?.name || 'User'}</span>
+                      <button
+                        onClick={() => setIsEditing(true)}
+                        className="text-purple-400 hover:text-purple-300 transition-colors"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-white/80 text-sm font-medium mb-2">Email Address</label>
+                  <span className="text-white">{user?.email || 'user@example.com'}</span>
+            </div>
+          </div>
+        </div>
+
+            {/* App Settings */}
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+              <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+                <Settings className="w-6 h-6 mr-2" />
+                App Settings
+              </h3>
+              
+              <div className="space-y-6">
+                {/* Theme */}
+                <div>
+                  <label className="block text-white/80 text-sm font-medium mb-3">Theme</label>
+                  <div className="flex space-x-3">
+                    {[
+                      { value: 'light', label: 'Light', icon: Sun },
+                      { value: 'dark', label: 'Dark', icon: Moon },
+                      { value: 'system', label: 'System', icon: Monitor }
+                    ].map(theme => (
+              <button
+                        key={theme.value}
+                        onClick={() => updateSetting('theme', theme.value as 'light' | 'dark' | 'system')}
+                        className={`flex items-center space-x-2 px-4 py-3 rounded-lg border-2 transition-all ${
+                          settings.theme === theme.value
+                            ? 'border-purple-500 bg-purple-500/20 text-white'
+                            : 'border-white/20 text-white/70 hover:border-white/40 hover:text-white'
+                        }`}
+                      >
+                        <theme.icon className="w-4 h-4" />
+                        <span className="text-sm font-medium">{theme.label}</span>
+              </button>
             ))}
           </div>
         </div>
 
-        {/* Settings */}
-        <div className="bg-gray-800/50 rounded-2xl p-6">
-          <div className="flex items-center space-x-2 mb-4">
-            <Settings className="w-6 h-6 text-white" />
-            <h2 className="text-xl font-bold text-white">Settings</h2>
+                {/* Notifications */}
+                <div>
+                  <label className="block text-white/80 text-sm font-medium mb-3">Notifications</label>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white">Enable push notifications</span>
+                    <button
+                      onClick={() => updateSetting('notificationsEnabled', !settings.notificationsEnabled)}
+                      className={`w-12 h-6 rounded-full transition-colors ${
+                        settings.notificationsEnabled ? 'bg-purple-600' : 'bg-gray-600'
+                      }`}
+                    >
+                      <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                        settings.notificationsEnabled ? 'translate-x-6' : 'translate-x-0.5'
+                      }`} />
+                    </button>
+                  </div>
           </div>
           
-          <div className="space-y-4">
+                {/* Sound */}
+                <div>
+                  <label className="block text-white/80 text-sm font-medium mb-3">Sound</label>
             <div className="flex items-center justify-between">
+                    <span className="text-white">Enable audio feedback</span>
+                    <button
+                      onClick={() => updateSetting('soundEnabled', !settings.soundEnabled)}
+                      className={`w-12 h-6 rounded-full transition-colors ${
+                        settings.soundEnabled ? 'bg-purple-600' : 'bg-gray-600'
+                      }`}
+                    >
+                      <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                        settings.soundEnabled ? 'translate-x-6' : 'translate-x-0.5'
+                      }`} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Font Size */}
               <div>
-                <div className="text-white font-medium">Dark Mode</div>
-                <div className="text-sm text-gray-400">Toggle dark/light theme</div>
+                  <label className="block text-white/80 text-sm font-medium mb-3">Font Size</label>
+                  <div className="flex space-x-3">
+                    {[
+                      { value: 'small', label: 'Small' },
+                      { value: 'medium', label: 'Medium' },
+                      { value: 'large', label: 'Large' }
+                    ].map(size => (
+                      <button
+                        key={size.value}
+                        onClick={() => updateSetting('fontSize', size.value as 'small' | 'medium' | 'large' | 'xl')}
+                        className={`px-4 py-3 rounded-lg border-2 transition-all ${
+                          settings.fontSize === size.value
+                            ? 'border-purple-500 bg-purple-500/20 text-white'
+                            : 'border-white/20 text-white/70 hover:border-white/40 hover:text-white'
+                        }`}
+                      >
+                        <span className="text-sm font-medium">{size.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <button
-                onClick={() => setIsDarkMode(!isDarkMode)}
-                className={`w-12 h-6 rounded-full transition-colors ${
-                  isDarkMode ? 'bg-purple-600' : 'bg-gray-600'
-                }`}
-              >
-                <div
-                  className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                    isDarkMode ? 'translate-x-6' : 'translate-x-0.5'
-                  }`}
-                />
-              </button>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-white font-medium">Notifications</div>
-                <div className="text-sm text-gray-400">Daily reminders and updates</div>
-              </div>
+            {/* Notification Settings */}
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+              <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+                <Bell className="w-6 h-6 mr-2" />
+                Notification Settings
+              </h3>
+              
+              <div className="space-y-4">
+                {/* Learning Reminders */}
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="text-white font-medium">Learning Reminders</div>
+                    <div className="text-white/70 text-sm">Daily learning session reminders</div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <button
+                      onClick={() => testNotification('learning-reminders')}
+                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors"
+                    >
+                      Test
+                    </button>
               <button
-                onClick={() => setNotifications(!notifications)}
+                      onClick={() => updateSetting('learningReminders', !settings.learningReminders)}
                 className={`w-12 h-6 rounded-full transition-colors ${
-                  notifications ? 'bg-purple-600' : 'bg-gray-600'
-                }`}
-              >
-                <div
-                  className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                    notifications ? 'translate-x-6' : 'translate-x-0.5'
-                  }`}
-                />
+                        settings.learningReminders ? 'bg-purple-600' : 'bg-gray-600'
+                      }`}
+                    >
+                      <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                        settings.learningReminders ? 'translate-x-6' : 'translate-x-0.5'
+                      }`} />
+              </button>
+                  </div>
+            </div>
+
+                {/* Live Session Alerts */}
+            <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="text-white font-medium">Live Session Alerts</div>
+                    <div className="text-white/70 text-sm">Notifications for live learning sessions</div>
+              </div>
+                  <div className="flex items-center space-x-3">
+                    <button
+                      onClick={() => testNotification('live-sessions')}
+                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors"
+                    >
+                      Test
+                    </button>
+              <button
+                      onClick={() => updateSetting('liveSessionAlerts', !settings.liveSessionAlerts)}
+                className={`w-12 h-6 rounded-full transition-colors ${
+                        settings.liveSessionAlerts ? 'bg-purple-600' : 'bg-gray-600'
+                      }`}
+                    >
+                      <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                        settings.liveSessionAlerts ? 'translate-x-6' : 'translate-x-0.5'
+                      }`} />
+              </button>
+                  </div>
+            </div>
+
+                {/* Achievement Notifications */}
+            <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="text-white font-medium">Achievement Notifications</div>
+                    <div className="text-white/70 text-sm">Celebrate your learning milestones</div>
+              </div>
+                  <div className="flex items-center space-x-3">
+                    <button
+                      onClick={() => testNotification('achievements')}
+                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors"
+                    >
+                      Test
+                    </button>
+              <button
+                      onClick={() => updateSetting('achievementNotifications', !settings.achievementNotifications)}
+                className={`w-12 h-6 rounded-full transition-colors ${
+                        settings.achievementNotifications ? 'bg-purple-600' : 'bg-gray-600'
+                      }`}
+                    >
+                      <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
+                        settings.achievementNotifications ? 'translate-x-6' : 'translate-x-0.5'
+                      }`} />
               </button>
             </div>
           </div>
         </div>
+
+              {/* Notification Statistics */}
+              <div className="mt-6 pt-4 border-t border-white/20">
+                <h4 className="text-white font-medium mb-4">Notification Statistics</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-white">0</div>
+                    <div className="text-white/70 text-sm">Total</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-white">0</div>
+                    <div className="text-white/70 text-sm">Learning Reminders</div>
+          </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-white">0</div>
+                    <div className="text-white/70 text-sm">Live Sessions</div>
+                      </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-white">0</div>
+                    <div className="text-white/70 text-sm">Achievements</div>
+                  </div>
+                </div>
+                <div className="mt-4 text-center">
+                  <div className="text-2xl font-bold text-white">0</div>
+                  <div className="text-white/70 text-sm">Progress Updates</div>
+          </div>
+        </div>
+
+              {/* Permission Status */}
+              <div className="mt-6 p-4 bg-green-500/20 border border-green-500/50 rounded-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                    <div className="flex items-center space-x-2">
+                      <Check className="w-5 h-5 text-green-400" />
+                      <span className="text-green-400 font-medium">Permission Status</span>
+                    </div>
+                    <div className="text-green-300 text-sm mt-1">
+                      Enabled
+                    </div>
+                    <div className="text-green-200 text-xs mt-1">
+                      Notifications are enabled. You'll receive learning reminders and updates.
+                    </div>
+              </div>
+                  <button className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition-colors">
+                    Enabled
+              </button>
+            </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Leaderboard Tab */}
+        {currentTab === 'leaderboard' && (
+          <LiveLeaderboard 
+            userId={user?.id}
+            limit={10}
+            autoRefresh={true}
+            refreshInterval={30000}
+          />
+        )}
       </div>
       
       {/* Bottom Navigation */}
-      <BottomNavigation />
+      <div className="fixed bottom-0 left-0 right-0 bg-white/10 backdrop-blur-lg border-t border-white/20">
+        <div className="flex items-center justify-around py-3">
+          <Link href="/" className="flex flex-col items-center space-y-1 text-white/70 hover:text-white transition-colors">
+            <div className="w-6 h-6 bg-gray-600 rounded-lg"></div>
+            <span className="text-xs">Home</span>
+          </Link>
+          <Link href="/lessons" className="flex flex-col items-center space-y-1 text-white/70 hover:text-white transition-colors">
+            <div className="w-6 h-6 bg-gray-600 rounded-lg"></div>
+            <span className="text-xs">Lessons</span>
+          </Link>
+          <Link href="/quiz" className="flex flex-col items-center space-y-1 text-white/70 hover:text-white transition-colors">
+            <div className="w-6 h-6 bg-gray-600 rounded-lg"></div>
+            <span className="text-xs">Quiz</span>
+          </Link>
+          <Link href="/ai-coach" className="flex flex-col items-center space-y-1 text-white/70 hover:text-white transition-colors">
+            <div className="w-6 h-6 bg-gray-600 rounded-lg"></div>
+            <span className="text-xs">AI Coach</span>
+          </Link>
+          <Link href="/profile" className="flex flex-col items-center space-y-1 text-purple-400">
+            <div className="w-6 h-6 bg-purple-600 rounded-lg"></div>
+            <span className="text-xs">Profile</span>
+          </Link>
+        </div>
+      </div>
     </div>
+    </ProtectedRoute>
   );
 }

@@ -52,7 +52,7 @@ export default function AccessibilitySettings() {
                   Font Size
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                  {(['small', 'medium', 'large', 'extra-large'] as const).map((size) => (
+                  {(['small', 'medium', 'large', 'xl'] as const).map((size) => (
                     <button
                       key={size}
                       onClick={() => updateSetting('fontSize', size)}

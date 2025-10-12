@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { translations, TranslationKey, LanguageCode } from '../lib/translations';
 
 interface Language {
   code: string;
@@ -14,6 +15,7 @@ interface LanguageContextType {
   currentLanguage: Language;
   setCurrentLanguage: (language: Language) => void;
   isRTL: boolean;
+  t: (key: TranslationKey) => string;
 }
 
 const languages: Language[] = [
@@ -60,12 +62,23 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = language.code;
   };
 
+  // Translation function
+  const t = (key: TranslationKey): string => {
+    const currentTranslations = translations[currentLanguage.code as LanguageCode];
+    if (!currentTranslations) {
+      console.warn(`No translations found for language: ${currentLanguage.code}`);
+      return translations.en[key] || key;
+    }
+    return currentTranslations[key] || translations.en[key] || key;
+  };
+
   return (
     <LanguageContext.Provider 
       value={{ 
         currentLanguage, 
         setCurrentLanguage: handleSetLanguage,
-        isRTL: currentLanguage.isRTL 
+        isRTL: currentLanguage.isRTL,
+        t
       }}
     >
       {children}
