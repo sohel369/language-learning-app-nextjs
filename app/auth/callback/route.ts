@@ -112,8 +112,8 @@ export async function GET(request: NextRequest) {
                     data.user.email?.split('@')[0] || 
                     "Guest",
               email: data.user.email,
-              learning_language: 'ar', // Default to Arabic
-              native_language: 'en', // Default to English
+              learning_languages: ['ar'], // Array of learning languages
+              base_language: 'en', // Base language for interface
               level: 1,
               total_xp: 0,
               streak: 0
@@ -121,11 +121,34 @@ export async function GET(request: NextRequest) {
           ]);
 
         if (profileError) {
-          console.error('Error creating user profile:', profileError);
-          // Don't redirect to error page for profile creation errors
-          // The user is still authenticated, just profile creation failed
+          console.error('Error creating user profile in profiles table:', profileError);
+          
+          // Fallback: try to create profile in users table
+          const { error: usersError } = await supabase
+            .from('users')
+            .insert([
+              {
+                id: data.user.id,
+                name: data.user.user_metadata?.full_name || 
+                      data.user.user_metadata?.name || 
+                      data.user.email?.split('@')[0] || 
+                      "Guest",
+                email: data.user.email,
+                learning_language: 'ar',
+                native_language: 'en',
+                level: 1,
+                total_xp: 0,
+                streak: 0
+              }
+            ]);
+
+          if (usersError) {
+            console.error('Error creating user profile in users table:', usersError);
+          } else {
+            console.log('User profile created successfully in users table');
+          }
         } else {
-          console.log('User profile created successfully');
+          console.log('User profile created successfully in profiles table');
         }
       } else {
         console.log('User profile already exists');

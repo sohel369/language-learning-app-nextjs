@@ -128,10 +128,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         let profile = null;
         let error = null;
         
-        // First try: profiles table (with correct column names)
+        // First try: profiles table (public.profiles with correct column names)
         const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
-          .select('id, email, name, level, total_xp, streak, learning_languages, base_language')
+          .select('id, email, name, level, total_xp, streak, native_language, learning_language')
           .eq('id', authUser.id)
           .single();
 
@@ -169,7 +169,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // Try profiles table first, then fallback to users table
             let createError = null;
             
-            // First try: profiles table (with correct column names)
+            // First try: profiles table (public.profiles with correct column names)
             const { error: profilesError } = await supabase
               .from('profiles')
               .insert([
@@ -180,8 +180,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                   level: 1,
                   total_xp: 0,
                   streak: 0,
-                  learning_languages: ['ar'], // Array of learning languages
-                  base_language: 'en'
+                  native_language: 'en',
+                  learning_language: 'ar'
                 }
               ]);
 
@@ -247,8 +247,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             level: profile.level,
             total_xp: profile.total_xp,
             streak: profile.streak,
-            learning_language: profile.learning_languages?.[0] || profile.learning_language || 'ar',
-            native_language: profile.base_language || profile.native_language || 'en'
+            learning_language: profile.learning_language || 'ar',
+            native_language: profile.native_language || 'en'
           });
         }
       } else {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   ArrowLeft, 
@@ -35,6 +35,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useAccessibility } from '../../contexts/AccessibilityContext';
 import ProtectedRoute from '../../components/ProtectedRoute';
+import { supabase } from '../../lib/supabase';
 
 const languages = [
   { code: 'en', name: 'English', flag: '🇺🇸', native: 'US English' },
@@ -98,21 +99,114 @@ const leaderboardData = [
 ];
 
 export default function ProfilePage() {
-  const { user, signOut, refreshUser } = useAuth();
+  const { user, signOut, refreshUser, loading } = useAuth();
   const { currentLanguage, setCurrentLanguage, isRTL } = useLanguage();
   const { settings, updateSetting } = useAccessibility();
 
   const [currentTab, setCurrentTab] = useState('stats');
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(user?.name || '');
+  
+  // Update editName when user changes
+  useEffect(() => {
+    setEditName(user?.name || '');
+  }, [user?.name]);
+
+  // Auto-create profile if user exists but has no name
+  useEffect(() => {
+    if (user && user.id && user.email && (!user.name || user.name === 'Guest')) {
+      console.log('User has no name, attempting to create profile...');
+      createUserProfile();
+    }
+  }, [user]);
   const [selectedLanguage, setSelectedLanguage] = useState('ar');
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [showInterfaceLanguage, setShowInterfaceLanguage] = useState(false);
   
 
   const handleSaveName = async () => {
-    // Here you would update the user's name in the database
-    setIsEditing(false);
+    if (!user || !editName.trim()) return;
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ name: editName.trim() })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Error updating name:', error);
+        return;
+      }
+
+      // Update local user state
+      await refreshUser();
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error saving name:', error);
+    }
+  };
+
+  const createUserProfile = async () => {
+    if (!user) return;
+    
+    try {
+      const response = await fetch('/api/create-profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          name: user.email?.split('@')[0] || 'User',
+          email: user.email || ''
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log('Profile created successfully:', result);
+        await refreshUser();
+        alert('Profile created successfully!');
+      } else {
+        console.error('Error creating profile:', result.error);
+        alert('Error creating profile: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error creating profile:', error);
+      alert('Error creating profile: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    }
+  };
+
+  const updateUserLanguages = async (nativeLang: string, learningLang: string) => {
+    if (!user) return;
+    
+    try {
+      // Use public.profiles table (correct approach)
+      const { data, error } = await supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          name: user.name || user.email?.split('@')[0] || 'User',
+          email: user.email,
+          native_language: nativeLang,
+          learning_language: learningLang
+        })
+        .select();
+
+      if (error) {
+        console.error('Error updating languages in profiles table:', error);
+        alert('Error updating languages: ' + error.message);
+        return;
+      }
+
+      console.log('Languages updated successfully in profiles table:', data);
+      await refreshUser();
+      alert('Languages updated successfully!');
+    } catch (error) {
+      console.error('Error updating languages:', error);
+      alert('Error updating languages: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    }
   };
 
   const handleSignOut = async () => {
@@ -136,6 +230,20 @@ export default function ProfilePage() {
     // You would implement actual notification testing here
   };
 
+  // Show loading state while user data is being fetched
+  if (loading) {
+    return (
+      <ProtectedRoute>
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+            <p className="text-white">Loading your profile...</p>
+          </div>
+        </div>
+      </ProtectedRoute>
+    );
+  }
+
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -157,8 +265,14 @@ export default function ProfilePage() {
               <Flame className="w-5 h-5 text-orange-400" />
               <span className="text-white font-semibold">{user?.streak || 0}</span>
             </div>
-            <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-sm">{user?.name?.charAt(0) || 'U'}</span>
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">{user?.name?.charAt(0)?.toUpperCase() || 'U'}</span>
+              </div>
+              <div className="text-right">
+                <div className="text-white font-semibold text-sm">{user?.name || 'User'}</div>
+                <div className="text-white/70 text-xs">{user?.email || 'user@example.com'}</div>
+              </div>
             </div>
             <button
               onClick={handleSignOut}
@@ -187,6 +301,38 @@ export default function ProfilePage() {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Profile</h1>
           <p className="text-white/70">Track your progress and customize your experience</p>
+          {/* Debug info - remove in production */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mt-4 p-3 bg-yellow-500/20 border border-yellow-500/50 rounded-lg">
+              <div className="flex items-center justify-between">
+                <p className="text-yellow-200 text-sm">
+                  Debug: User Name = "{user?.name || 'Not loaded'}" | 
+                  User ID = "{user?.id || 'Not loaded'}" | 
+                  Email = "{user?.email || 'Not loaded'}"
+                </p>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={refreshUser}
+                    className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-xs transition-colors"
+                  >
+                    Refresh User Data
+                  </button>
+                  <button
+                    onClick={createUserProfile}
+                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs transition-colors"
+                  >
+                    Create Profile
+                  </button>
+                  <button
+                    onClick={() => updateUserLanguages('Bengali', 'English')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs transition-colors"
+                  >
+                    Set Bengali/English
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Tab Navigation */}
@@ -236,11 +382,13 @@ export default function ProfilePage() {
                   <span className="text-white font-bold text-2xl">{user?.name?.charAt(0) || 'U'}</span>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">{user?.name || 'User'}</h2>
-                  <p className="text-blue-100">Language Explorer</p>
+                  <h2 className="text-2xl font-bold">
+                    {user?.name || 'Loading...'}
+                  </h2>
+                  <p className="text-blue-100">{user?.email || 'user@example.com'}</p>
                   <div className="mt-2">
                     <span className="inline-flex items-center px-3 py-1 bg-white/20 rounded-full text-sm">
-                      {languages.find(l => l.code === selectedLanguage)?.flag} {languages.find(l => l.code === selectedLanguage)?.native}
+                      {languages.find(l => l.code === user?.learning_language || selectedLanguage)?.flag} {languages.find(l => l.code === user?.learning_language || selectedLanguage)?.native}
                     </span>
                   </div>
                 </div>
@@ -348,6 +496,68 @@ export default function ProfilePage() {
         {/* Settings Tab */}
         {currentTab === 'settings' && (
           <div className="space-y-6">
+            {/* Basic Profile Information */}
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+              <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+                <User className="w-6 h-6 mr-2" />
+                Profile Information
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-white/80 text-sm font-medium mb-2">Display Name</label>
+                  {isEditing ? (
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="flex-1 px-3 py-2 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="Enter your name"
+                      />
+                      <button
+                        onClick={handleSaveName}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setIsEditing(false)}
+                        className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <span className="text-white">{user?.name || 'User'}</span>
+                      <button
+                        onClick={() => setIsEditing(true)}
+                        className="text-purple-400 hover:text-purple-300 transition-colors"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-white/80 text-sm font-medium mb-2">Email Address</label>
+                  <span className="text-white">{user?.email || 'user@example.com'}</span>
+                </div>
+                <div>
+                  <label className="block text-white/80 text-sm font-medium mb-2">Learning Language</label>
+                  <span className="text-white">
+                    {languages.find(l => l.code === user?.learning_language)?.native || 'Arabic'}
+                  </span>
+                </div>
+                <div>
+                  <label className="block text-white/80 text-sm font-medium mb-2">Native Language</label>
+                  <span className="text-white">
+                    {languages.find(l => l.code === user?.native_language)?.native || 'English'}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
             <ProfileSettings />
             <UserSettings />
           </div>
@@ -401,7 +611,19 @@ export default function ProfilePage() {
                 <div>
                   <label className="block text-white/80 text-sm font-medium mb-2">Email Address</label>
                   <span className="text-white">{user?.email || 'user@example.com'}</span>
-            </div>
+                </div>
+                <div>
+                  <label className="block text-white/80 text-sm font-medium mb-2">Learning Language</label>
+                  <span className="text-white">
+                    {languages.find(l => l.code === user?.learning_language)?.native || 'Arabic'}
+                  </span>
+                </div>
+                <div>
+                  <label className="block text-white/80 text-sm font-medium mb-2">Native Language</label>
+                  <span className="text-white">
+                    {languages.find(l => l.code === user?.native_language)?.native || 'English'}
+                  </span>
+                </div>
           </div>
         </div>
 

@@ -121,6 +121,59 @@ export default function SignupPage() {
         setLoading(false);
         return;
       }
+
+      // Create user profile in database
+      if (loginData.user) {
+        try {
+          // Try to create profile in profiles table first
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert([
+              {
+                id: loginData.user.id,
+                name: formData.name,
+                email: formData.email,
+                learning_languages: [formData.learningLanguage],
+                base_language: formData.nativeLanguage,
+                level: 1,
+                total_xp: 0,
+                streak: 0
+              }
+            ]);
+
+          if (profileError) {
+            console.log('Profiles table failed, trying users table:', profileError.message);
+            
+            // Fallback: create profile in users table
+            const { error: usersError } = await supabase
+              .from('users')
+              .insert([
+                {
+                  id: loginData.user.id,
+                  name: formData.name,
+                  email: formData.email,
+                  learning_language: formData.learningLanguage,
+                  native_language: formData.nativeLanguage,
+                  level: 1,
+                  total_xp: 0,
+                  streak: 0
+                }
+              ]);
+
+            if (usersError) {
+              console.error('Error creating user profile:', usersError);
+              // Continue anyway - the user is authenticated
+            } else {
+              console.log('User profile created successfully in users table');
+            }
+          } else {
+            console.log('User profile created successfully in profiles table');
+          }
+        } catch (profileError) {
+          console.error('Unexpected error creating profile:', profileError);
+          // Continue anyway - the user is authenticated
+        }
+      }
   
       // Success: redirect to dashboard
       setSuccess(true);
