@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import LiveLeaderboard from '../../components/LiveLeaderboard';
 import UserSettings from '../../components/UserSettings';
+import ProfileSettings from '../../components/ProfileSettings';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useAccessibility } from '../../contexts/AccessibilityContext';
@@ -346,7 +347,10 @@ export default function ProfilePage() {
 
         {/* Settings Tab */}
         {currentTab === 'settings' && (
-          <UserSettings />
+          <div className="space-y-6">
+            <ProfileSettings />
+            <UserSettings />
+          </div>
         )}
 
         {/* Legacy Settings Tab - keeping for reference */}

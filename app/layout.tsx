@@ -4,7 +4,9 @@ import "./globals.css";
 import { LanguageProvider } from "../contexts/LanguageContext";
 import { AccessibilityProvider } from "../contexts/AccessibilityContext";
 import { AuthProvider } from "../contexts/AuthContext";
+import { NotificationProvider } from "../contexts/NotificationContext";
 import ErrorBoundary from "../components/ErrorBoundary";
+import AuthFlowGuard from "../components/AuthFlowGuard";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +37,9 @@ export default function RootLayout({
           <AuthProvider>
             <LanguageProvider>
               <AccessibilityProvider>
-                {children}
+                <NotificationProvider>
+                  {children}
+                </NotificationProvider>
               </AccessibilityProvider>
             </LanguageProvider>
           </AuthProvider>

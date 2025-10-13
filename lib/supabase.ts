@@ -1,11 +1,24 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://uaijcvhvyurbnfmkqnqt.supabase.co'
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhaWpjdmh2eXVyYm5mbWtxbnF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyMTU3NzksImV4cCI6MjA3NTc5MTc3OX0.FbBITvB9ITLt7L3e5BAiP4VYa0Qw7YCOx-SHHl1k8zY'
+// ✅ Supabase credentials
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  'https://uaijcvhvyurbnfmkqnqt.supabase.co'
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+const supabaseAnonKey =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVhaWpjdmh2eXVyYm5mbWtxbnF0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyMTU3NzksImV4cCI6MjA3NTc5MTc3OX0.FbBITvB9ITLt7L3e5BAiP4VYa0Qw7YCOx-SHHl1k8zY'
 
-// Database types
+// ✅ Supabase client with full auth configuration
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true, // লগইন session save করে রাখবে
+    autoRefreshToken: true, // session expire হলে refresh করবে
+    detectSessionInUrl: true // OAuth callback থেকে session ধরবে
+  }
+})
+
+// ✅ Database types (same as before)
 export interface User {
   id: string
   email: string

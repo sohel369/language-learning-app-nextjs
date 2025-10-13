@@ -48,9 +48,18 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     // Save language to localStorage
     localStorage.setItem('selected-language', currentLanguage.code);
     
-    // Update document direction
+    // Update document direction and language
     document.documentElement.dir = currentLanguage.isRTL ? 'rtl' : 'ltr';
     document.documentElement.lang = currentLanguage.code;
+    
+    // Add Arabic-specific styles for better RTL support
+    if (currentLanguage.code === 'ar') {
+      document.documentElement.classList.add('arabic-layout');
+      document.body.classList.add('arabic-text');
+    } else {
+      document.documentElement.classList.remove('arabic-layout');
+      document.body.classList.remove('arabic-text');
+    }
   }, [currentLanguage]);
 
   const handleSetLanguage = (language: Language) => {

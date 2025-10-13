@@ -63,6 +63,15 @@ export const translations = {
     highContrast: 'High Contrast',
     largeText: 'Large Text',
     screenReader: 'Screen Reader',
+    
+    // Dashboard specific
+    dashboard: 'Dashboard',
+    continueLesson: 'Continue Lesson',
+    startLearning: 'Start Learning',
+    testYourself: 'Test Yourself',
+    seeRankings: 'See Rankings',
+    yourRank: 'Your Rank',
+    completed: 'Completed',
   },
   
   ar: {
@@ -78,7 +87,7 @@ export const translations = {
     // Homepage
     welcome: 'مرحباً بعودتك',
     readyToLearn: 'مستعد لمواصلة التعلم؟',
-    startJourney: 'ابدأ رحلة تعلم اللغة!',
+    startJourney: 'ابدأ رحلة تَعَلُّم اللغة!',
     joinLearners: 'انضم إلى آلاف المتعلمين حول العالم وأتقن لغات جديدة بدروس مدعومة بالذكاء الاصطناعي',
     getStarted: 'ابدأ مجاناً',
     signIn: 'تسجيل الدخول',
@@ -128,6 +137,15 @@ export const translations = {
     highContrast: 'تباين عالي',
     largeText: 'نص كبير',
     screenReader: 'قارئ الشاشة',
+    
+    // Dashboard specific
+    dashboard: 'لوحة التحكم',
+    continueLesson: 'متابعة الدرس',
+    startLearning: 'بدء التعلم',
+    testYourself: 'اختبر نفسك',
+    seeRankings: 'شاهد التصنيفات',
+    yourRank: 'ترتيبك',
+    completed: 'مكتمل',
   },
   
   nl: {

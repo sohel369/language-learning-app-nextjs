@@ -1,163 +1,97 @@
 'use client';
 
-import { useState } from 'react';
-import EnhancedQuiz from '../../components/EnhancedQuiz';
-import BottomNavigation from '../../components/BottomNavigation';
-import { ArrowLeft, Trophy } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-
-const sampleQuestions = [
-  {
-    id: '1',
-    type: 'multiple-choice' as const,
-    question: 'What does "hello" mean in Spanish?',
-    options: ['Hola', 'Adiós', 'Gracias', 'Por favor'],
-    correct_answer: 0,
-    explanation: '"Hola" is the Spanish word for "hello" or "hi".',
-    difficulty: 'easy' as const,
-    category: 'greetings',
-    language: 'en'
-  },
-  {
-    id: '2',
-    type: 'translation' as const,
-    question: 'مرحبا',
-    correct_answer: 'hello',
-    explanation: '"مرحبا" means "hello" in Arabic.',
-    difficulty: 'medium' as const,
-    category: 'greetings',
-    language: 'ar'
-  },
-  {
-    id: '3',
-    type: 'true-false' as const,
-    question: 'The Arabic word "وداعا" means "goodbye".',
-    correct_answer: true,
-    explanation: 'Correct! "وداعا" (wada\'an) means "goodbye" in Arabic.',
-    difficulty: 'easy' as const,
-    category: 'greetings',
-    language: 'ar'
-  },
-  {
-    id: '4',
-    type: 'fill-blank' as const,
-    question: 'Complete the Arabic word for water: م___',
-    correct_answer: 'اء',
-    explanation: 'The complete word is "ماء" (ma\'un) meaning water.',
-    difficulty: 'medium' as const,
-    category: 'basics',
-    language: 'ar'
-  },
-  {
-    id: '5',
-    type: 'audio' as const,
-    question: 'Listen to the audio and select the correct meaning.',
-    options: ['Hello', 'Goodbye', 'Thank you', 'Please'],
-    correct_answer: 0,
-    explanation: 'The audio says "مرحبا" which means "hello".',
-    difficulty: 'hard' as const,
-    category: 'greetings',
-    language: 'ar'
-  }
-];
+import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
+import BottomNavigation from '../../components/BottomNavigation';
+import LanguageQuiz from '../../components/LanguageQuiz';
+import ProtectedRoute from '../../components/ProtectedRoute';
+import { supabase } from '../../lib/supabase';
 
 export default function QuizPage() {
-  const [isCompleted, setIsCompleted] = useState(false);
-  const [finalScore, setFinalScore] = useState(0);
-  const [timeSpent, setTimeSpent] = useState(0);
+  const { user } = useAuth();
+  const { currentLanguage, isRTL } = useLanguage();
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleQuizComplete = (score: number, time: number) => {
-    setFinalScore(score);
-    setTimeSpent(time);
-    setIsCompleted(true);
+  useEffect(() => {
+    if (user) {
+      loadUserLearningLanguages();
+    }
+  }, [user]);
+
+  const loadUserLearningLanguages = async () => {
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('learning_languages')
+        .eq('id', user?.id)
+        .single();
+
+      if (error) {
+        console.error('Error loading user learning languages:', error);
+        // Default to current language if no learning languages set
+        setSelectedLanguages([currentLanguage.code]);
+        return;
+      }
+
+      if (data?.learning_languages && data.learning_languages.length > 0) {
+        setSelectedLanguages(data.learning_languages);
+      } else {
+        // Default to current language if no learning languages set
+        setSelectedLanguages([currentLanguage.code]);
+      }
+    } catch (error) {
+      console.error('Error loading user learning languages:', error);
+      setSelectedLanguages([currentLanguage.code]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (isCompleted) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
-        <div className="max-w-2xl mx-auto">
-          <Link href="/" className="inline-flex items-center space-x-2 text-white mb-6">
-            <ArrowLeft className="w-5 h-5" />
-            <span>Back to Home</span>
-          </Link>
-          
-          <div className="bg-gray-800/50 rounded-xl p-8 text-center">
-            <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Trophy className="w-10 h-10 text-white" />
-            </div>
-            
-            <h1 className="text-3xl font-bold text-white mb-4">Quiz Complete!</h1>
-            <p className="text-gray-400 mb-6">Great job on completing the quiz!</p>
-            
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="bg-gray-700/50 rounded-lg p-4">
-                <div className="text-2xl font-bold text-white">{finalScore}/{sampleQuestions.length}</div>
-                <div className="text-sm text-gray-400">Score</div>
-              </div>
-              <div className="bg-gray-700/50 rounded-lg p-4">
-                <div className="text-2xl font-bold text-white">{Math.floor(timeSpent / 60)}m {timeSpent % 60}s</div>
-                <div className="text-sm text-gray-400">Time</div>
-              </div>
-            </div>
-            
-            <div className="bg-purple-600/20 border border-purple-500 rounded-lg p-4 mb-6">
-              <h3 className="text-lg font-bold text-white mb-2">Performance</h3>
-              <div className="text-2xl font-bold text-purple-400">
-                {Math.round((finalScore / sampleQuestions.length) * 100)}%
-              </div>
-              <p className="text-sm text-purple-200 mt-2">
-                {finalScore === sampleQuestions.length 
-                  ? 'Perfect score! You\'re a language master!' 
-                  : finalScore >= sampleQuestions.length * 0.8 
-                    ? 'Excellent work! You\'re doing great!' 
-                    : 'Good effort! Keep practicing to improve.'}
-              </p>
-            </div>
-            
-            <div className="flex space-x-4">
-              <Link 
-                href="/quiz" 
-                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
-              >
-                Retake Quiz
-              </Link>
-              <Link 
-                href="/" 
-                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
-              >
-                Back to Home
-              </Link>
-            </div>
+      <ProtectedRoute>
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-white text-lg">Loading quizzes...</p>
           </div>
         </div>
-      </div>
+      </ProtectedRoute>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="p-6 pb-24">
-        <div className="max-w-4xl mx-auto">
-          <Link href="/" className="inline-flex items-center space-x-2 text-white mb-6 hover:text-purple-300">
-            <ArrowLeft className="w-5 h-5" />
-            <span>Back to Home</span>
-          </Link>
-        
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Language Quiz</h1>
-          <p className="text-gray-400">Test your language knowledge with interactive questions</p>
+    <ProtectedRoute>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900" dir={isRTL ? 'rtl' : 'ltr'}>
+        {/* Header */}
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <Link href="/" className="flex items-center space-x-3 text-white hover:text-purple-300 transition-colors">
+              <ArrowLeft className="w-6 h-6" />
+              <span className="text-lg font-medium">Back to Home</span>
+            </Link>
+            
+            <div className="flex items-center space-x-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white">{currentLanguage.flag}</div>
+                <div className="text-sm text-gray-300">{currentLanguage.native}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quiz Content */}
+          <LanguageQuiz selectedLanguages={selectedLanguages} />
         </div>
         
-        <EnhancedQuiz 
-          questions={sampleQuestions}
-          onComplete={handleQuizComplete}
-          language="en"
-        />
-        </div>
+        {/* Bottom Navigation */}
+        <BottomNavigation />
       </div>
-      
-      {/* Bottom Navigation */}
-      <BottomNavigation />
-    </div>
+    </ProtectedRoute>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Flame, Star, Award, Trophy, Target, Users } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 interface UserProgress {
   streak: number;

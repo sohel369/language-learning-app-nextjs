@@ -8,22 +8,13 @@ import { supabase } from '../../../lib/supabase';
 import { getRedirectUrl } from '../../../lib/config';
 
 const languages = [
-  { code: 'en', name: 'English', flag: '🇺🇸', native: 'US English' },
-  { code: 'ar', name: 'العربية', flag: '🇸🇦', native: 'SA العربية' },
-  { code: 'es', name: 'Español', flag: '🇪🇸', native: 'ES Español' },
-  { code: 'fr', name: 'Français', flag: '🇫🇷', native: 'FR Français' },
-  { code: 'de', name: 'Deutsch', flag: '🇩🇪', native: 'DE Deutsch' },
-  { code: 'it', name: 'Italiano', flag: '🇮🇹', native: 'IT Italiano' },
-  { code: 'pt', name: 'Português', flag: '🇵🇹', native: 'PT Português' },
-  { code: 'ru', name: 'Русский', flag: '🇷🇺', native: 'RU Русский' },
-  { code: 'ja', name: '日本語', flag: '🇯🇵', native: 'JP 日本語' },
-  { code: 'ko', name: '한국어', flag: '🇰🇷', native: 'KR 한국어' },
-  { code: 'zh', name: '中文', flag: '🇨🇳', native: 'CN 中文' },
-  { code: 'hi', name: 'हिन्दी', flag: '🇮🇳', native: 'IN हिन्दी' },
-  { code: 'th', name: 'ไทย', flag: '🇹🇭', native: 'TH ไทย' },
-  { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳', native: 'VN Tiếng Việt' },
-  { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩', native: 'ID Bahasa Indonesia' },
-  { code: 'ms', name: 'Bahasa Melayu', flag: '🇲🇾', native: 'MY Bahasa Melayu' }
+  { code: 'en', name: 'English', flag: '🇺🇸', native: 'English' },
+  { code: 'ar', name: 'العربية', flag: '🇸🇦', native: 'العربية' },
+  { code: 'nl', name: 'Dutch', flag: '🇳🇱', native: 'Nederlands' },
+  { code: 'id', name: 'Indonesian', flag: '🇮🇩', native: 'Bahasa Indonesia' },
+  { code: 'ms', name: 'Malay', flag: '🇲🇾', native: 'Bahasa Melayu' },
+  { code: 'th', name: 'Thai', flag: '🇹🇭', native: 'ไทย' },
+  { code: 'km', name: 'Khmer', flag: '🇰🇭', native: 'ខ្មែរ' }
 ];
 
 export default function SignupPage() {
@@ -97,11 +88,11 @@ export default function SignupPage() {
   const handleSignup = async () => {
     setError('');
     if (!validateStep2()) return;
-
+  
     setLoading(true);
-
+  
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { data: signupData, error: signupError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
@@ -112,46 +103,36 @@ export default function SignupPage() {
           }
         }
       });
-
-      if (error) {
-        console.error('Signup Error:', error.message);
-        setError(error.message);
-      } else {
-        console.log('Signup Success:', data);
-        
-        // Create user profile in database
-        if (data.user) {
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .insert([
-              {
-                id: data.user.id,
-                name: formData.name,
-                email: formData.email,
-                learning_language: formData.learningLanguage,
-                native_language: formData.nativeLanguage,
-                level: 1,
-                total_xp: 0,
-                streak: 0
-              }
-            ]);
-
-          if (profileError) {
-            console.error('Profile creation error:', profileError);
-          }
-        }
-
-        setSuccess(true);
-        setTimeout(() => {
-          router.push('/');
-        }, 2000);
+  
+      if (signupError) {
+        setError(signupError.message);
+        setLoading(false);
+        return;
       }
+  
+      // Auto-login (signIn) after signUp
+      const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password
+      });
+  
+      if (loginError) {
+        setError('Signup successful, but auto-login failed. Please login manually.');
+        setLoading(false);
+        return;
+      }
+  
+      // Success: redirect to dashboard
+      setSuccess(true);
+      setTimeout(() => router.push('/dashboard'), 1500);
+  
     } catch (err) {
-      setError('An unexpected error occurred');
-    } finally {
+      setError('Unexpected error: ' + (err instanceof Error ? err.message : 'Unknown'));
       setLoading(false);
     }
   };
+  
+  
 
   const handleGoogleSignup = async () => {
     setLoading(true);
@@ -190,7 +171,7 @@ export default function SignupPage() {
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">Account Created!</h1>
             <p className="text-white/70 mb-6">
-              Welcome to your language learning journey! Redirecting to homepage...
+              Welcome to your language learning journey! Redirecting to your profile...
             </p>
             <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
           </div>

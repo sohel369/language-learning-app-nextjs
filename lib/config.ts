@@ -36,8 +36,10 @@ export const config = {
 
 // Helper function to get redirect URL
 export const getRedirectUrl = (path: string = '/auth/callback') => {
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://myreactmvp.firebaseapp.com';
-  return `${origin}${path}`;
+  // Use environment variable for production, fallback to localhost for development
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
+                  (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+  return `${baseUrl}${path}`;
 };
 
 // Helper function to check if origin is allowed

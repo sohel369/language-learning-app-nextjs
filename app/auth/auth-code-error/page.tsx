@@ -2,8 +2,41 @@
 
 import Link from 'next/link';
 import { AlertCircle, ArrowLeft, RefreshCw } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function AuthCodeErrorPage() {
+  const searchParams = useSearchParams();
+  const [error, setError] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
+
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    const descriptionParam = searchParams.get('description');
+    
+    if (errorParam) {
+      setError(errorParam);
+    }
+    if (descriptionParam) {
+      setDescription(descriptionParam);
+    }
+  }, [searchParams]);
+
+  const getErrorMessage = () => {
+    switch (error) {
+      case 'no_code':
+        return 'No authorization code was received from Google.';
+      case 'exchange_failed':
+        return 'Failed to exchange authorization code for session.';
+      case 'no_user':
+        return 'No user data was received after authentication.';
+      case 'unexpected':
+        return 'An unexpected error occurred during authentication.';
+      default:
+        return description || 'An unknown error occurred during authentication.';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -14,30 +47,42 @@ export default function AuthCodeErrorPage() {
           </div>
           <h1 className="text-2xl font-bold text-white mb-2">Authentication Error</h1>
           <p className="text-white/70">
-            There was a problem with your authentication. This could be due to:
+            {getErrorMessage()}
           </p>
         </div>
 
         {/* Error Details */}
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 mb-6">
-          <ul className="space-y-3 text-white/80 text-sm">
-            <li className="flex items-start space-x-2">
-              <span className="text-red-400 mt-1">•</span>
-              <span>Invalid or expired authentication code</span>
-            </li>
-            <li className="flex items-start space-x-2">
-              <span className="text-red-400 mt-1">•</span>
-              <span>Network connection issues</span>
-            </li>
-            <li className="flex items-start space-x-2">
-              <span className="text-red-400 mt-1">•</span>
-              <span>Authentication provider error</span>
-            </li>
-            <li className="flex items-start space-x-2">
-              <span className="text-red-400 mt-1">•</span>
-              <span>Session timeout</span>
-            </li>
-          </ul>
+          {error && (
+            <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg">
+              <div className="text-red-400 font-medium text-sm">Error Code: {error}</div>
+              {description && (
+                <div className="text-red-300 text-sm mt-1">{description}</div>
+              )}
+            </div>
+          )}
+          
+          <div className="text-white/80 text-sm">
+            <p className="mb-3">This could be due to:</p>
+            <ul className="space-y-2">
+              <li className="flex items-start space-x-2">
+                <span className="text-red-400 mt-1">•</span>
+                <span>Invalid or expired authentication code</span>
+              </li>
+              <li className="flex items-start space-x-2">
+                <span className="text-red-400 mt-1">•</span>
+                <span>Network connection issues</span>
+              </li>
+              <li className="flex items-start space-x-2">
+                <span className="text-red-400 mt-1">•</span>
+                <span>Google OAuth configuration issues</span>
+              </li>
+              <li className="flex items-start space-x-2">
+                <span className="text-red-400 mt-1">•</span>
+                <span>Supabase authentication service error</span>
+              </li>
+            </ul>
+          </div>
         </div>
 
         {/* Action Buttons */}

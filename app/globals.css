@@ -2,6 +2,121 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Arabic RTL Support */
+.arabic-layout {
+  direction: rtl;
+}
+
+.arabic-text {
+  direction: rtl;
+  text-align: right;
+  font-family: 'Noto Sans Arabic', 'Arial Unicode MS', 'Segoe UI', sans-serif;
+}
+
+.arabic-text input,
+.arabic-text textarea {
+  direction: rtl;
+  text-align: right;
+}
+
+.arabic-text .flex {
+  flex-direction: row-reverse;
+}
+
+.arabic-text .space-x-2 > * + * {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+.arabic-text .space-x-3 > * + * {
+  margin-left: 0;
+  margin-right: 0.75rem;
+}
+
+.arabic-text .space-x-4 > * + * {
+  margin-left: 0;
+  margin-right: 1rem;
+}
+
+.arabic-text .space-x-6 > * + * {
+  margin-left: 0;
+  margin-right: 1.5rem;
+}
+
+.arabic-text .ml-2 {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+.arabic-text .ml-3 {
+  margin-left: 0;
+  margin-right: 0.75rem;
+}
+
+.arabic-text .ml-4 {
+  margin-left: 0;
+  margin-right: 1rem;
+}
+
+.arabic-text .mr-2 {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+.arabic-text .mr-3 {
+  margin-right: 0;
+  margin-left: 0.75rem;
+}
+
+.arabic-text .mr-4 {
+  margin-right: 0;
+  margin-left: 1rem;
+}
+
+.arabic-text .pl-3 {
+  padding-left: 0;
+  padding-right: 0.75rem;
+}
+
+.arabic-text .pl-4 {
+  padding-left: 0;
+  padding-right: 1rem;
+}
+
+.arabic-text .pr-3 {
+  padding-right: 0;
+  padding-left: 0.75rem;
+}
+
+.arabic-text .pr-4 {
+  padding-right: 0;
+  padding-left: 1rem;
+}
+
+.arabic-text .text-left {
+  text-align: right;
+}
+
+.arabic-text .text-right {
+  text-align: left;
+}
+
+.arabic-text .justify-start {
+  justify-content: flex-end;
+}
+
+.arabic-text .justify-end {
+  justify-content: flex-start;
+}
+
+.arabic-text .items-start {
+  align-items: flex-end;
+}
+
+.arabic-text .items-end {
+  align-items: flex-start;
+}
+
 :root {
   --background: #0f0f23;
   --foreground: #ffffff;

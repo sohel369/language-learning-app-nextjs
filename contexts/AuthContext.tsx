@@ -31,16 +31,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    // Get initial session
-    refreshUser();
+    // Initialize auth state with timeout
+    const initializeAuth = async () => {
+      try {
+        // Wait a bit for Supabase to initialize
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Get initial session with timeout
+        const sessionPromise = supabase.auth.getSession();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Auth initialization timeout')), 10000)
+        );
+        
+        const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        
+        if (session) {
+          console.log('Initial session found, refreshing user...');
+          await refreshUser();
+        } else {
+          console.log('No initial session found');
+          setUser(null);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        setUser(null);
+        setLoading(false);
+      }
+    };
+
+    // Add a fallback timeout to prevent infinite loading
+    const fallbackTimeout = setTimeout(() => {
+      console.warn('Auth initialization taking too long, setting loading to false');
+      setLoading(false);
+    }, 15000);
+
+    initializeAuth().finally(() => {
+      clearTimeout(fallbackTimeout);
+    });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state change:', event, session?.user?.id);
+        
         if (event === 'SIGNED_IN' && session?.user) {
           await refreshUser();
         } else if (event === 'SIGNED_OUT') {
           setUser(null);
+          setLoading(false);
+        } else if (event === 'TOKEN_REFRESHED') {
+          // Token was refreshed, update user if needed
+          if (session?.user) {
+            await refreshUser();
+          }
         }
       }
     );
@@ -51,24 +95,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshUser = async () => {
     try {
       setLoading(true);
-      const { data: { user: authUser } } = await supabase.auth.getUser();
+      console.log('Refreshing user authentication...');
+      
+      // First, try to get the current session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.log('No active session found:', sessionError.message);
+        setUser(null);
+        return;
+      }
+      
+      if (!session) {
+        console.log('No session found');
+        setUser(null);
+        return;
+      }
+      
+      // If we have a session, get the user
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) {
+        console.error('Authentication error:', authError);
+        setUser(null);
+        return;
+      }
       
       if (authUser) {
+        console.log('Auth user found:', authUser.id);
+        
         // Get user profile from database - try profiles first, then users
         let profile = null;
         let error = null;
         
-        // First try: profiles table
+        // First try: profiles table (with correct column names)
         const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
-          .select('id, email, name, level, total_xp, streak, learning_language, native_language')
+          .select('id, email, name, level, total_xp, streak, learning_languages, base_language')
           .eq('id', authUser.id)
           .single();
 
         if (profilesError && profilesError.code !== 'PGRST116') {
           console.log('Profiles table failed, trying users table:', profilesError.message);
           
-          // Fallback: users table
+          // Fallback: users table (with correct column names)
           const { data: usersData, error: usersError } = await supabase
             .from('users')
             .select('id, email, name, level, total_xp, streak, learning_language, native_language')
@@ -86,6 +156,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (error) {
           console.error('Error fetching user profile:', error);
+          console.error('Error details:', {
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint
+          });
           // If profile doesn't exist, create it
           if (error.code === 'PGRST116') {
             console.log('Creating user profile...');
@@ -93,7 +169,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // Try profiles table first, then fallback to users table
             let createError = null;
             
-            // First try: profiles table
+            // First try: profiles table (with correct column names)
             const { error: profilesError } = await supabase
               .from('profiles')
               .insert([
@@ -104,8 +180,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                   level: 1,
                   total_xp: 0,
                   streak: 0,
-                  learning_language: 'ar',
-                  native_language: 'en'
+                  learning_languages: ['ar'], // Array of learning languages
+                  base_language: 'en'
                 }
               ]);
 
@@ -158,11 +234,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               });
             }
           } else {
+            console.error('Non-PGRST116 error fetching profile:', error);
             setUser(null);
           }
         } else {
           console.log('User profile found:', profile);
-          setUser(profile);
+          // Map database fields to User interface
+          setUser({
+            id: profile.id,
+            email: profile.email,
+            name: profile.name,
+            level: profile.level,
+            total_xp: profile.total_xp,
+            streak: profile.streak,
+            learning_language: profile.learning_languages?.[0] || profile.learning_language || 'ar',
+            native_language: profile.base_language || profile.native_language || 'en'
+          });
         }
       } else {
         console.log('No auth user found');
