@@ -237,7 +237,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             console.error('Non-PGRST116 error fetching profile:', error);
             setUser(null);
           }
-        } else {
+        } else if (profile) {
           console.log('User profile found:', profile);
           // Map database fields to User interface
           setUser({
@@ -249,6 +249,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             streak: profile.streak,
             learning_language: profile.learning_language || 'ar',
             native_language: profile.native_language || 'en'
+          });
+        } else {
+          console.log('No profile data found, creating default user');
+          setUser({
+            id: authUser.id,
+            email: authUser.email || "",
+            name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || authUser.email?.split('@')[0] || "Guest",
+            level: 1,
+            total_xp: 0,
+            streak: 0,
+            learning_language: 'ar',
+            native_language: 'en'
           });
         }
       } else {
