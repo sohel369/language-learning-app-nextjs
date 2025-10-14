@@ -24,10 +24,9 @@ import { languages } from '../../contexts/LanguageContext';
 import NotificationBell from '../../components/NotificationBell';
 import BottomNavigation from '../../components/BottomNavigation';
 import ProtectedRoute from '../../components/ProtectedRoute';
-import LanguageDebugger from '../../components/LanguageDebugger';
 
 export default function DashboardPage() {
-  const { user, loading } = useAuth();
+  const { user, loading, authChecked } = useAuth();
   const { currentLanguage, setCurrentLanguage, isRTL } = useLanguage();
   const t = useTranslation();
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
@@ -40,7 +39,8 @@ export default function DashboardPage() {
     }
   };
 
-  if (loading) {
+  // Show loading only if auth hasn't been checked yet
+  if (!authChecked) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
@@ -282,8 +282,6 @@ export default function DashboardPage() {
         {/* Bottom Navigation */}
         <BottomNavigation />
         
-        {/* Language Debugger - Remove this in production */}
-        <LanguageDebugger />
       </div>
     </ProtectedRoute>
   );

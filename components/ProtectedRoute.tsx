@@ -16,20 +16,21 @@ export default function ProtectedRoute({
   redirectTo = '/auth/login',
   requireAuth = true
 }: ProtectedRouteProps) {
-  const { user, loading } = useAuth();
+  const { user, loading, authChecked } = useAuth();
   const router = useRouter();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
-    if (!loading && requireAuth && !user) {
+    // Only redirect if auth has been checked and user is not authenticated
+    if (authChecked && requireAuth && !user) {
       console.log('User not authenticated, redirecting to:', redirectTo);
       setIsRedirecting(true);
       router.push(redirectTo);
     }
-  }, [user, loading, router, redirectTo, requireAuth]);
+  }, [user, authChecked, router, redirectTo, requireAuth]);
 
-  // Show loading state while checking authentication
-  if (loading) {
+  // Show loading state only if auth hasn't been checked yet
+  if (!authChecked) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">

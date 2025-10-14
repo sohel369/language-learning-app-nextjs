@@ -18,6 +18,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  authChecked: boolean;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
   fetchProfile: () => Promise<void>;
@@ -28,19 +29,27 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     // Initialize auth state with timeout
     const initializeAuth = async () => {
+      if (initialized) return; // Prevent multiple initializations
+      
       try {
+        console.log('Initializing auth...');
+        setLoading(true);
+        
         // Wait a bit for Supabase to initialize
         await new Promise(resolve => setTimeout(resolve, 100));
         
         // Get initial session with timeout
         const sessionPromise = supabase.auth.getSession();
         const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Auth initialization timeout')), 10000)
+          setTimeout(() => reject(new Error('Auth initialization timeout')), 3000)
         );
         
         const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any;
@@ -53,10 +62,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(null);
           setLoading(false);
         }
+        setAuthChecked(true);
       } catch (error) {
         console.error('Error initializing auth:', error);
         setUser(null);
         setLoading(false);
+        setAuthChecked(true);
+      } finally {
+        setInitialized(true);
       }
     };
 
@@ -64,7 +77,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const fallbackTimeout = setTimeout(() => {
       console.warn('Auth initialization taking too long, setting loading to false');
       setLoading(false);
-    }, 15000);
+      setInitialized(true);
+      setAuthChecked(true);
+    }, 5000); // Reduced from 10s to 5s
 
     initializeAuth().finally(() => {
       clearTimeout(fallbackTimeout);
@@ -82,7 +97,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setLoading(false);
         } else if (event === 'TOKEN_REFRESHED') {
           // Token was refreshed, update user if needed
-          if (session?.user) {
+          if (session?.user && user) {
+            // Only refresh if we already have a user to avoid loops
             await refreshUser();
           }
         }
@@ -90,11 +106,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [initialized, user]);
 
   const refreshUser = async () => {
+    if (refreshing) {
+      console.log('Already refreshing user, skipping...');
+      return;
+    }
+    
     try {
-      setLoading(true);
+      setRefreshing(true);
       console.log('Refreshing user authentication...');
       
       // First, try to get the current session
@@ -103,12 +124,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (sessionError) {
         console.log('No active session found:', sessionError.message);
         setUser(null);
+        setLoading(false);
         return;
       }
       
       if (!session) {
         console.log('No session found');
         setUser(null);
+        setLoading(false);
         return;
       }
       
@@ -272,6 +295,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -311,7 +335,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signOut, refreshUser, fetchProfile }}>
+    <AuthContext.Provider value={{ user, loading, authChecked, signOut, refreshUser, fetchProfile }}>
       {children}
     </AuthContext.Provider>
   );
