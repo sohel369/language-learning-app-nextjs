@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '../../lib/supabase';
-import { getRedirectUrl } from '../../lib/config';
+import { supabase } from '@/lib/supabase';
+import { getRedirectUrl } from '@/lib/config';
 import { CheckCircle, XCircle, AlertCircle, RefreshCw, ExternalLink, Copy } from 'lucide-react';
 import Link from 'next/link';
 

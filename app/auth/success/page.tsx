@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../../../contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { CheckCircle, ArrowRight, Loader2 } from 'lucide-react';
 
 export default function AuthSuccessPage() {
