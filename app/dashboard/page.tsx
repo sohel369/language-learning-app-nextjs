@@ -24,12 +24,19 @@ import { languages } from '../../contexts/LanguageContext';
 import NotificationBell from '../../components/NotificationBell';
 import BottomNavigation from '../../components/BottomNavigation';
 import ProtectedRoute from '../../components/ProtectedRoute';
+import DashboardNotificationPopup from '../../components/DashboardNotificationPopup';
 
 export default function DashboardPage() {
   const { user, loading, authChecked } = useAuth();
   const { currentLanguage, setCurrentLanguage, isRTL } = useLanguage();
   const t = useTranslation();
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
+  const [showNotificationPopup, setShowNotificationPopup] = useState(false);
+  const [currentNotification, setCurrentNotification] = useState<{
+    title: string;
+    message: string;
+    type: 'success' | 'info' | 'warning' | 'error';
+  } | null>(null);
 
   const handleLanguageChange = (languageCode: string) => {
     const language = languages.find(lang => lang.code === languageCode);
@@ -38,6 +45,48 @@ export default function DashboardPage() {
       console.log('Dashboard: Language changed to:', language);
     }
   };
+
+  // Function to show notification popup
+  const showNotification = (title: string, message: string, type: 'success' | 'info' | 'warning' | 'error' = 'info') => {
+    setCurrentNotification({ title, message, type });
+    setShowNotificationPopup(true);
+  };
+
+  // Simulate notifications for demonstration
+  useEffect(() => {
+    // Show welcome notification after 2 seconds
+    const welcomeTimer = setTimeout(() => {
+      showNotification(
+        'Welcome to LinguaAI! 🎉',
+        'Start your language learning journey with personalized lessons and AI-powered guidance.',
+        'success'
+      );
+    }, 2000);
+
+    // Show daily reminder after 8 seconds
+    const reminderTimer = setTimeout(() => {
+      showNotification(
+        'Daily Learning Reminder ⏰',
+        'Keep your streak alive! Complete a lesson today to maintain your progress.',
+        'info'
+      );
+    }, 8000);
+
+    // Show achievement notification after 15 seconds
+    const achievementTimer = setTimeout(() => {
+      showNotification(
+        'Achievement Unlocked! 🏆',
+        'Congratulations! You\'ve completed your first lesson. Keep up the great work!',
+        'success'
+      );
+    }, 15000);
+
+    return () => {
+      clearTimeout(welcomeTimer);
+      clearTimeout(reminderTimer);
+      clearTimeout(achievementTimer);
+    };
+  }, []);
 
   // Show loading only if auth hasn't been checked yet
   if (!authChecked) {
@@ -68,6 +117,16 @@ export default function DashboardPage() {
             </div>
             
             <div className="flex items-center space-x-4">
+              <button
+                onClick={() => showNotification(
+                  'Test Notification 🔔',
+                  'This is a test notification to demonstrate the popup functionality.',
+                  'info'
+                )}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-lg text-sm transition-colors"
+              >
+                Test Notify
+              </button>
               <Globe className="w-6 h-6 text-white/70 hover:text-white transition-colors cursor-pointer" />
               <NotificationBell />
               <Settings className="w-6 h-6 text-white/70 hover:text-white transition-colors cursor-pointer" />
@@ -280,6 +339,17 @@ export default function DashboardPage() {
         
         {/* Bottom Navigation */}
         <BottomNavigation />
+        
+        {/* Dashboard Notification Popup */}
+        {currentNotification && (
+          <DashboardNotificationPopup
+            show={showNotificationPopup}
+            onClose={() => setShowNotificationPopup(false)}
+            title={currentNotification.title}
+            message={currentNotification.message}
+            type={currentNotification.type}
+          />
+        )}
         
       </div>
     </ProtectedRoute>

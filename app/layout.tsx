@@ -7,6 +7,7 @@ import { AuthProvider } from "../contexts/AuthContext";
 import { NotificationProvider } from "../contexts/NotificationContext";
 import ErrorBoundary from "../components/ErrorBoundary";
 import AuthFlowGuard from "../components/AuthFlowGuard";
+import NotificationPopupWrapper from "../components/NotificationPopupWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,7 +39,9 @@ export default function RootLayout({
             <LanguageProvider>
               <AccessibilityProvider>
                 <NotificationProvider>
-                  {children}
+                  <NotificationPopupWrapper>
+                    {children}
+                  </NotificationPopupWrapper>
                 </NotificationProvider>
               </AccessibilityProvider>
             </LanguageProvider>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { supabase } from '../lib/supabase';
+import SimpleNotificationPopup from './SimpleNotificationPopup';
 import { 
   Globe, 
   Moon, 
@@ -48,6 +49,7 @@ export default function ProfileSettings({ onSettingsUpdate }: ProfileSettingsPro
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showNotificationPopup, setShowNotificationPopup] = useState(false);
 
   const availableLanguages = [
     { code: 'en', name: 'English', flag: '🇺🇸', native: 'English' },
@@ -176,6 +178,11 @@ export default function ProfileSettings({ onSettingsUpdate }: ProfileSettingsPro
       ...prev,
       [key]: value
     }));
+    
+    // Show notification popup when notification settings change
+    if (key === 'notifications_enabled') {
+      setShowNotificationPopup(true);
+    }
   };
 
   if (loading) {
@@ -341,6 +348,21 @@ export default function ProfileSettings({ onSettingsUpdate }: ProfileSettingsPro
               }`} />
             </button>
           </div>
+          
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-white font-medium">Test Notification Popup</div>
+              <div className="text-white/70 text-sm">Show notification status popup</div>
+            </div>
+            <button
+              onClick={() => {
+                setShowNotificationPopup(true);
+              }}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+            >
+              Test Popup
+            </button>
+          </div>
         </div>
       </div>
 
@@ -418,6 +440,13 @@ export default function ProfileSettings({ onSettingsUpdate }: ProfileSettingsPro
           <span>{saving ? 'Saving...' : 'Save Settings'}</span>
         </button>
       </div>
+      
+      {/* Notification Popup */}
+      <SimpleNotificationPopup 
+        show={showNotificationPopup} 
+        onClose={() => setShowNotificationPopup(false)}
+        isNotificationEnabled={settings.notifications_enabled}
+      />
     </div>
   );
 }
