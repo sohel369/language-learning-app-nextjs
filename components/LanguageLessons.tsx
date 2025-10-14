@@ -64,6 +64,7 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
+  const [allLessons, setAllLessons] = useState<Record<string, Lesson[]>>({});
 
   // Sample lessons data - in a real app, this would come from your database
   const sampleLessons: Record<string, Lesson[]> = {
@@ -282,11 +283,20 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
   };
 
   useEffect(() => {
-    // Load lessons for the selected language
-    const languageLessons = sampleLessons[selectedLanguage] || [];
+    // Load lessons for all user learning languages
+    const lessonsForAllLanguages: Record<string, Lesson[]> = {};
+    
+    userLearningLanguages.forEach(lang => {
+      lessonsForAllLanguages[lang] = sampleLessons[lang] || [];
+    });
+    
+    setAllLessons(lessonsForAllLanguages);
+    
+    // Set lessons for the currently selected language
+    const languageLessons = lessonsForAllLanguages[selectedLanguage] || [];
     setLessons(languageLessons);
     setLoading(false);
-  }, [selectedLanguage]);
+  }, [userLearningLanguages, selectedLanguage]);
 
   const handlePlayAudio = async (audioUrl: string, lessonId: string) => {
     try {
@@ -296,7 +306,14 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
         currentAudio.currentTime = 0;
       }
 
-      // Create new audio element
+      // Ensure we're playing the correct language version
+      const lesson = lessons.find(l => l.id === lessonId);
+      if (!lesson || lesson.language !== selectedLanguage) {
+        console.warn('Audio language mismatch - this should not happen');
+        return;
+      }
+
+      // Create new audio element with the correct language audio
       const audio = new Audio(audioUrl);
       setCurrentAudio(audio);
       setIsPlaying(lessonId);
@@ -308,7 +325,9 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
       };
 
       audio.onerror = () => {
-        console.error('Audio playback error');
+        console.error('Audio file not found:', audioUrl);
+        // Try to use text-to-speech as fallback
+        handleTextToSpeech(lesson.title, lesson.language);
         setIsPlaying(null);
         setCurrentAudio(null);
       };
@@ -316,8 +335,53 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
       // Play audio
       await audio.play();
     } catch (error) {
-      console.error('Error playing audio:', error);
+      console.error('Error playing audio for lesson:', lessonId, 'in language:', selectedLanguage, error);
+      // Try text-to-speech fallback
+      const lesson = lessons.find(l => l.id === lessonId);
+      if (lesson) {
+        handleTextToSpeech(lesson.title, lesson.language);
+      }
       setIsPlaying(null);
+    }
+  };
+
+  const handleTextToSpeech = (text: string, language: string) => {
+    if ('speechSynthesis' in window) {
+      // Stop any current speech
+      speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Set language based on the lesson language
+      const languageMap: Record<string, string> = {
+        'en': 'en-US',
+        'ar': 'ar-SA',
+        'nl': 'nl-NL',
+        'id': 'id-ID',
+        'ms': 'ms-MY',
+        'th': 'th-TH',
+        'km': 'km-KH'
+      };
+      
+      utterance.lang = languageMap[language] || 'en-US';
+      utterance.rate = 0.8;
+      utterance.pitch = 1;
+      utterance.volume = 0.8;
+      
+      utterance.onend = () => {
+        setIsPlaying(null);
+      };
+      
+      utterance.onerror = () => {
+        console.error('Text-to-speech error');
+        setIsPlaying(null);
+      };
+      
+      speechSynthesis.speak(utterance);
+      setIsPlaying('tts');
+    } else {
+      console.warn('Text-to-speech not supported');
+      alert(`Audio file not available. Lesson: ${text}`);
     }
   };
 
@@ -326,8 +390,37 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
       currentAudio.pause();
       currentAudio.currentTime = 0;
       setCurrentAudio(null);
-      setIsPlaying(null);
     }
+    
+    // Stop text-to-speech if playing
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+    }
+    
+    setIsPlaying(null);
+  };
+
+  const handleLanguageSwitch = (lang: string) => {
+    // Stop any currently playing audio when switching languages
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      setCurrentAudio(null);
+    }
+    
+    // Stop text-to-speech if playing
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+    }
+    
+    setIsPlaying(null);
+    
+    // Switch to the new language
+    setSelectedLanguage(lang);
+    
+    // Update lessons for the new language
+    const languageLessons = allLessons[lang] || [];
+    setLessons(languageLessons);
   };
 
   const getLanguageName = (code: string) => {
@@ -409,21 +502,33 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
         {/* Language Tabs */}
         {userLearningLanguages.length > 1 && (
           <div className="mb-8">
-            <div className="flex flex-wrap gap-2">
-              {userLearningLanguages.map((lang) => (
-                <button
-                  key={lang}
-                  onClick={() => setSelectedLanguage(lang)}
-                  className={`px-4 py-2 rounded-lg border-2 transition-all duration-200 ${
-                    selectedLanguage === lang
-                      ? 'bg-purple-600 border-purple-500 text-white'
-                      : 'bg-white/10 border-white/20 text-white/70 hover:bg-white/20'
-                  }`}
-                >
-                  <span className="mr-2">{getLanguageFlag(lang)}</span>
-                  {getLanguageName(lang)}
-                </button>
-              ))}
+            <h3 className="text-lg font-semibold text-white mb-4">Select Language to Learn</h3>
+            <div className="flex flex-wrap gap-3">
+              {userLearningLanguages.map((lang) => {
+                const languageLessons = allLessons[lang] || [];
+                const completedCount = languageLessons.filter(l => l.completed).length;
+                const totalCount = languageLessons.length;
+                
+                return (
+                  <button
+                    key={lang}
+                    onClick={() => handleLanguageSwitch(lang)}
+                    className={`px-6 py-3 rounded-xl border-2 transition-all duration-200 flex items-center space-x-3 ${
+                      selectedLanguage === lang
+                        ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/25'
+                        : 'bg-white/10 border-white/20 text-white/70 hover:bg-white/20 hover:border-white/30'
+                    }`}
+                  >
+                    <span className="text-2xl">{getLanguageFlag(lang)}</span>
+                    <div className="text-left">
+                      <div className="font-semibold">{getLanguageName(lang)}</div>
+                      <div className="text-sm opacity-75">
+                        {completedCount}/{totalCount} completed
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -431,14 +536,30 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
         {/* Current Language Header */}
         <div className="mb-6">
           <div className="flex items-center space-x-3 mb-4">
-            <span className="text-2xl">{getLanguageFlag(selectedLanguage)}</span>
-            <h2 className="text-2xl font-bold text-white">
-              {getLanguageName(selectedLanguage)} Lessons
-            </h2>
+            <span className="text-3xl">{getLanguageFlag(selectedLanguage)}</span>
+            <div>
+              <h2 className="text-2xl font-bold text-white">
+                {getLanguageName(selectedLanguage)} Lessons
+              </h2>
+              <p className="text-white/70 text-sm">
+                Learning {getLanguageName(selectedLanguage)} • Audio in {getLanguageName(selectedLanguage)}
+              </p>
+            </div>
           </div>
-          <p className="text-white/70">
-            {lessons.length} lessons available • {lessons.filter(l => l.completed).length} completed
-          </p>
+          <div className="flex items-center space-x-6 text-white/70">
+            <div className="flex items-center space-x-2">
+              <BookOpen className="w-4 h-4" />
+              <span>{lessons.length} lessons available</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <CheckCircle className="w-4 h-4" />
+              <span>{lessons.filter(l => l.completed).length} completed</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Headphones className="w-4 h-4" />
+              <span>Audio in {getLanguageName(selectedLanguage)}</span>
+            </div>
+          </div>
         </div>
 
         {/* Lessons Grid */}
@@ -510,21 +631,34 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
               {/* Audio Player */}
               {lesson.audioUrl && (
                 <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-white/70">Audio Preview</span>
+                    <div className="flex items-center space-x-1 text-xs text-white/60">
+                      <Headphones className="w-3 h-3" />
+                      <span>in {getLanguageName(lesson.language)}</span>
+                    </div>
+                  </div>
+                  <div className="text-xs text-white/50 mb-2">
+                    💡 Audio files not available - using text-to-speech
+                  </div>
                   <button
                     onClick={() => 
-                      isPlaying === lesson.id 
+                      (isPlaying === lesson.id || isPlaying === 'tts')
                         ? handleStopAudio() 
                         : handlePlayAudio(lesson.audioUrl!, lesson.id)
                     }
                     className="w-full flex items-center justify-center space-x-2 p-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
                   >
-                    {isPlaying === lesson.id ? (
+                    {(isPlaying === lesson.id || isPlaying === 'tts') ? (
                       <Pause className="w-5 h-5" />
                     ) : (
                       <Play className="w-5 h-5" />
                     )}
                     <span>
-                      {isPlaying === lesson.id ? 'Pause Audio' : 'Play Audio'}
+                      {(isPlaying === lesson.id || isPlaying === 'tts') 
+                        ? 'Pause Audio' 
+                        : `Play Audio (${getLanguageName(lesson.language)})`
+                      }
                     </span>
                   </button>
                 </div>
@@ -537,13 +671,21 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
                   {lesson.exercises.slice(0, 3).map((exercise) => (
                     <div
                       key={exercise.id}
-                      className="flex items-center space-x-2 text-sm"
+                      className="flex items-center justify-between text-sm"
                     >
-                      {getExerciseIcon(exercise.type)}
-                      <span className={`${exercise.completed ? 'text-green-400' : 'text-white/70'}`}>
-                        {exercise.title}
-                      </span>
-                      {exercise.completed && <CheckCircle className="w-4 h-4 text-green-400" />}
+                      <div className="flex items-center space-x-2">
+                        {getExerciseIcon(exercise.type)}
+                        <span className={`${exercise.completed ? 'text-green-400' : 'text-white/70'}`}>
+                          {exercise.title}
+                        </span>
+                        {exercise.completed && <CheckCircle className="w-4 h-4 text-green-400" />}
+                      </div>
+                      {exercise.audioUrl && (
+                        <div className="flex items-center space-x-1 text-xs text-white/60">
+                          <Headphones className="w-3 h-3" />
+                          <span>{getLanguageName(lesson.language)}</span>
+                        </div>
+                      )}
                     </div>
                   ))}
                   {lesson.exercises.length > 3 && (
