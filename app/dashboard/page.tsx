@@ -70,7 +70,6 @@ export default function DashboardPage() {
             <div className="flex items-center space-x-4">
               <Globe className="w-6 h-6 text-white/70 hover:text-white transition-colors cursor-pointer" />
               <NotificationBell />
-              <Users className="w-6 h-6 text-white/70 hover:text-white transition-colors cursor-pointer" />
               <Settings className="w-6 h-6 text-white/70 hover:text-white transition-colors cursor-pointer" />
               <Link href="/profile" className="text-white/70 hover:text-white transition-colors">
                 <User className="w-6 h-6" />

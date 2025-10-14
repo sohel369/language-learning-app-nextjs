@@ -246,7 +246,7 @@ export default function ProfilePage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 pb-20">
       {/* Header */}
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
@@ -301,11 +301,11 @@ export default function ProfilePage() {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Profile</h1>
           <p className="text-white/70">Track your progress and customize your experience</p>
-          {/* Debug info - remove in production */}
+          {/* Debug info - hidden by default, can be toggled */}
           {process.env.NODE_ENV === 'development' && (
-            <div className="mt-4 p-3 bg-yellow-500/20 border border-yellow-500/50 rounded-lg">
+            <div className="mt-4 p-4 bg-slate-800/50 border border-slate-600/50 rounded-lg">
               <div className="flex items-center justify-between">
-                <p className="text-yellow-200 text-sm">
+                <p className="text-slate-300 text-sm">
                   Debug: User Name = "{user?.name || 'Not loaded'}" | 
                   User ID = "{user?.id || 'Not loaded'}" | 
                   Email = "{user?.email || 'Not loaded'}"
@@ -313,9 +313,9 @@ export default function ProfilePage() {
                 <div className="flex space-x-2">
                   <button
                     onClick={refreshUser}
-                    className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-xs transition-colors"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs transition-colors"
                   >
-                    Refresh User Data
+                    Refresh
                   </button>
                   <button
                     onClick={createUserProfile}
@@ -325,9 +325,9 @@ export default function ProfilePage() {
                   </button>
                   <button
                     onClick={() => updateUserLanguages('Bengali', 'English')}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs transition-colors"
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs transition-colors"
                   >
-                    Set Bengali/English
+                    Set Languages
                   </button>
                 </div>
               </div>
@@ -376,118 +376,129 @@ export default function ProfilePage() {
         {currentTab === 'stats' && (
           <div className="space-y-6">
             {/* Profile Summary Card */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white">
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-2xl">{user?.name?.charAt(0) || 'U'}</span>
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white shadow-2xl">
+              <div className="flex items-center space-x-6 mb-6">
+                <div className="w-20 h-20 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-3xl">{user?.name?.charAt(0) || 'U'}</span>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">
+                  <h2 className="text-3xl font-bold mb-2">
                     {user?.name || 'Loading...'}
                   </h2>
-                  <p className="text-blue-100">{user?.email || 'user@example.com'}</p>
-                  <div className="mt-2">
-                    <span className="inline-flex items-center px-3 py-1 bg-white/20 rounded-full text-sm">
+                  <p className="text-blue-100 text-lg">{user?.email || 'user@example.com'}</p>
+                  <div className="mt-3">
+                    <span className="inline-flex items-center px-4 py-2 bg-white/25 rounded-full text-sm font-medium">
                       {languages.find(l => l.code === user?.learning_language || selectedLanguage)?.flag} {languages.find(l => l.code === user?.learning_language || selectedLanguage)?.native}
                     </span>
                   </div>
                 </div>
               </div>
               
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-4 gap-6">
                 <div className="text-center">
-                  <div className="text-2xl font-bold">{user?.total_xp || 0}</div>
-                  <div className="text-blue-100 text-sm">Total XP</div>
+                  <div className="text-3xl font-bold">{user?.total_xp || 0}</div>
+                  <div className="text-blue-100 text-sm font-medium">Total XP</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold">{user?.streak || 0}</div>
-                  <div className="text-blue-100 text-sm">Day Streak</div>
+                  <div className="text-3xl font-bold">{user?.streak || 0}</div>
+                  <div className="text-blue-100 text-sm font-medium">Day Streak</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold">{user?.level || 1}</div>
-                  <div className="text-blue-100 text-sm">Level</div>
+                  <div className="text-3xl font-bold">{user?.level || 1}</div>
+                  <div className="text-blue-100 text-sm font-medium">Level</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold">0</div>
-                  <div className="text-blue-100 text-sm">Badges</div>
+                  <div className="text-3xl font-bold">0</div>
+                  <div className="text-blue-100 text-sm font-medium">Badges</div>
                 </div>
               </div>
             </div>
 
             {/* Learning Stats */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
-              <h3 className="text-xl font-semibold text-white mb-4">Learning Stats</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white">{user?.total_xp || 0}</div>
-                  <div className="text-white/70 text-sm">Total XP</div>
+            <div className="bg-white/15 backdrop-blur-lg rounded-2xl p-8 border-2 border-white/30 shadow-xl">
+              <h3 className="text-2xl font-bold text-white mb-6">Learning Stats</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="text-center p-4 bg-white/10 rounded-xl">
+                  <div className="text-3xl font-bold text-white">{user?.total_xp || 0}</div>
+                  <div className="text-white/80 text-sm font-medium">Total XP</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white">{user?.streak || 0}</div>
-                  <div className="text-white/70 text-sm">Day Streak</div>
+                <div className="text-center p-4 bg-white/10 rounded-xl">
+                  <div className="text-3xl font-bold text-white">{user?.streak || 0}</div>
+                  <div className="text-white/80 text-sm font-medium">Day Streak</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white">0</div>
-                  <div className="text-white/70 text-sm">Words Learned</div>
+                <div className="text-center p-4 bg-white/10 rounded-xl">
+                  <div className="text-3xl font-bold text-white">0</div>
+                  <div className="text-white/80 text-sm font-medium">Words Learned</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white">{user?.level || 1}</div>
-                  <div className="text-white/70 text-sm">Level</div>
+                <div className="text-center p-4 bg-white/10 rounded-xl">
+                  <div className="text-3xl font-bold text-white">{user?.level || 1}</div>
+                  <div className="text-white/80 text-sm font-medium">Level</div>
                 </div>
               </div>
             </div>
 
             {/* Learning Progress */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
-              <h3 className="text-xl font-semibold text-white mb-4">Learning Progress</h3>
-              <div className="space-y-4">
+            <div className="bg-white/15 backdrop-blur-lg rounded-2xl p-8 border-2 border-white/30 shadow-xl">
+              <h3 className="text-2xl font-bold text-white mb-6">Learning Progress</h3>
+              <div className="space-y-6">
                 <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-white font-medium">Current Level Progress</span>
-                    <span className="text-white/70 text-sm">0 / 200 XP</span>
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-white font-semibold text-lg">Current Level Progress</span>
+                    <span className="text-white/80 text-sm font-medium">0 / 200 XP</span>
                   </div>
-                  <div className="w-full bg-gray-700 rounded-full h-3">
-                    <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full" style={{ width: '0%' }}></div>
+                  <div className="w-full bg-gray-700/50 rounded-full h-4 shadow-inner">
+                    <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-4 rounded-full shadow-lg" style={{ width: '0%' }}></div>
                   </div>
                 </div>
                 <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-white font-medium">Weekly Goal</span>
-                    <span className="text-white/70 text-sm">0 / 7 days</span>
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-white font-semibold text-lg">Weekly Goal</span>
+                    <span className="text-white/80 text-sm font-medium">0 / 7 days</span>
                   </div>
-                  <div className="w-full bg-gray-700 rounded-full h-3">
-                    <div className="bg-gradient-to-r from-green-500 to-blue-500 h-3 rounded-full" style={{ width: '100%' }}></div>
+                  <div className="w-full bg-gray-700/50 rounded-full h-4 shadow-inner">
+                    <div className="bg-gradient-to-r from-green-500 to-blue-500 h-4 rounded-full shadow-lg" style={{ width: '0%' }}></div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Achievements */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
-              <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
-                <Trophy className="w-6 h-6 mr-2" />
+            <div className="bg-white/15 backdrop-blur-lg rounded-2xl p-6 border-2 border-white/30 shadow-xl">
+              <h3 className="text-2xl font-bold text-white mb-6 flex items-center">
+                <Trophy className="w-7 h-7 mr-3 text-yellow-400" />
                 Achievements
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {achievements.map((achievement) => (
-                  <div key={achievement.id} className="p-4 bg-white/5 rounded-xl border border-white/10">
-                    <div className="flex items-center space-x-3 mb-2">
+                  <div key={achievement.id} className={`p-5 rounded-xl border-2 transition-all duration-200 hover:scale-105 ${
+                    achievement.unlocked 
+                      ? 'bg-gradient-to-br from-green-500/20 to-emerald-500/20 border-green-400/50 shadow-lg shadow-green-500/20' 
+                      : 'bg-white/10 border-white/20 hover:bg-white/15'
+                  }`}>
+                    <div className="flex items-center space-x-3 mb-3">
+                      <div className={`p-2 rounded-lg ${achievement.unlocked ? 'bg-green-500/20' : 'bg-white/10'}`}>
                       <achievement.icon className={`w-6 h-6 ${achievement.color}`} />
-                      <span className="text-white font-medium">{achievement.name}</span>
                     </div>
-                    <p className="text-white/70 text-sm">{achievement.description}</p>
-                    {!achievement.unlocked && (
-                      <div className="mt-2 text-xs text-white/50">Not unlocked yet</div>
+                      <span className="text-white font-semibold text-lg">{achievement.name}</span>
+                    </div>
+                    <p className="text-white/80 text-sm mb-2">{achievement.description}</p>
+                    {achievement.unlocked ? (
+                      <div className="flex items-center space-x-1 text-green-400 text-sm font-medium">
+                        <Check className="w-4 h-4" />
+                        <span>Unlocked!</span>
+                      </div>
+                    ) : (
+                      <div className="text-white/60 text-sm">Not unlocked yet</div>
                     )}
                   </div>
                 ))}
               </div>
-              <div className="mt-4 p-4 bg-yellow-500/20 border border-yellow-500/50 rounded-xl">
-                <div className="flex items-center space-x-2">
-                  <Award className="w-5 h-5 text-yellow-400" />
-                  <span className="text-yellow-400 font-medium">No achievements yet</span>
+              <div className="mt-6 p-5 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-2 border-yellow-400/50 rounded-xl">
+                <div className="flex items-center space-x-3">
+                  <Award className="w-6 h-6 text-yellow-400" />
+                  <span className="text-yellow-300 font-semibold text-lg">No achievements yet</span>
                 </div>
-                <p className="text-yellow-200 text-sm mt-1">Keep learning to unlock them!</p>
+                <p className="text-yellow-200 text-sm mt-2">Keep learning to unlock them! Complete lessons and quizzes to earn your first achievement.</p>
               </div>
             </div>
           </div>

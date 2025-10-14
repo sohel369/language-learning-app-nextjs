@@ -321,16 +321,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
+      // Clear user state immediately to prevent redirect loops
+      setUser(null);
+      setLoading(false);
+      
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.log('Logout Error:', error.message);
       } else {
         console.log('Logged out successfully');
       }
-      setUser(null);
+      
+      // Force redirect to getting started page with a clean state
       router.push('/');
+      // Force a page refresh to ensure clean state
+      window.location.href = '/';
     } catch (error) {
       console.error('Error signing out:', error);
+      // Even if there's an error, clear the user state
+      setUser(null);
+      setLoading(false);
+      router.push('/');
+      window.location.href = '/';
     }
   };
 
