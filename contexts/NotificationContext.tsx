@@ -171,7 +171,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       new Notification(notificationData.title, {
         body: notificationData.message,
         icon: '/favicon.ico',
-        tag: notificationData.id
+        tag: notificationData.title
       });
     }
   };

@@ -35,7 +35,7 @@ interface LanguageSupportProps {
 
 export default function LanguageSupport({ onLanguageChange }: LanguageSupportProps) {
   const { currentLanguage, setCurrentLanguage } = useLanguage();
-  const [selectedLanguage, setSelectedLanguage] = useState<string>(currentLanguage);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(currentLanguage.code);
   const [showLanguageDetails, setShowLanguageDetails] = useState<string | null>(null);
 
   const languageInfo: Record<string, LanguageInfo> = {
@@ -120,7 +120,10 @@ export default function LanguageSupport({ onLanguageChange }: LanguageSupportPro
 
   const handleLanguageSelect = (languageCode: string) => {
     setSelectedLanguage(languageCode);
-    setCurrentLanguage(languageCode);
+    const language = languages.find(lang => lang.code === languageCode);
+    if (language) {
+      setCurrentLanguage(language);
+    }
     onLanguageChange?.(languageCode);
   };
 

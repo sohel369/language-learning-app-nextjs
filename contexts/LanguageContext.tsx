@@ -78,7 +78,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       console.warn(`No translations found for language: ${currentLanguage.code}`);
       return translations.en[key] || key;
     }
-    return currentTranslations[key] || translations.en[key] || key;
+    return (currentTranslations as any)[key] || (translations.en as any)[key] || key;
   };
 
   return (
