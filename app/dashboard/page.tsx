@@ -177,7 +177,7 @@ export default function DashboardPage() {
                     }`}
                   >
                     <div className="text-center">
-                      <div className="text-lg font-semibold mb-1">{lang.country}</div>
+                      <div className="text-lg font-semibold mb-1">{lang.name}</div>
                       <div className="text-sm text-white/80">{lang.native}</div>
                     </div>
                   </button>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { useLanguage, languages } from '../../contexts/LanguageContext';
 import AIPronunciationCoach from '../../components/AIPronunciationCoach';
 import AdaptiveLearningSystem from '../../components/AdaptiveLearningSystem';
 import LiveTeacherIntegration from '../../components/LiveTeacherIntegration';
@@ -23,10 +23,10 @@ import {
 
 export default function AIFeaturesPage() {
   const { user } = useAuth();
-  const { selectedLanguages } = useLanguage();
+  const { currentLanguage } = useLanguage();
   const [activeTab, setActiveTab] = useState('pronunciation');
   const [targetWord, setTargetWord] = useState('Hello');
-  const [targetLanguage, setTargetLanguage] = useState(selectedLanguages[0] || 'en');
+  const [targetLanguage, setTargetLanguage] = useState(currentLanguage.code);
 
   const tabs = [
     {
@@ -164,15 +164,9 @@ export default function AIFeaturesPage() {
                 onChange={(e) => setTargetLanguage(e.target.value)}
                 className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white"
               >
-                {selectedLanguages.map((lang) => (
-                  <option key={lang} value={lang}>
-                    {lang === 'en' ? 'English' : 
-                     lang === 'ar' ? 'العربية' : 
-                     lang === 'nl' ? 'Nederlands' : 
-                     lang === 'id' ? 'Bahasa Indonesia' : 
-                     lang === 'ms' ? 'Bahasa Melayu' : 
-                     lang === 'th' ? 'ไทย' : 
-                     lang === 'km' ? 'ខ្មែរ' : lang}
+                {languages.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.native}
                   </option>
                 ))}
               </select>

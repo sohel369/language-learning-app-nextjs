@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { useLanguage, languages } from '../../contexts/LanguageContext';
 import LanguageSupport from '../../components/LanguageSupport';
 import SocialQuizzes from '../../components/SocialQuizzes';
 import { 
@@ -22,9 +22,9 @@ import {
 
 export default function LanguageLearningPage() {
   const { user } = useAuth();
-  const { selectedLanguages, currentLanguage } = useLanguage();
+  const { currentLanguage } = useLanguage();
   const [activeTab, setActiveTab] = useState('language-support');
-  const [selectedLanguage, setSelectedLanguage] = useState(currentLanguage);
+  const [selectedLanguage, setSelectedLanguage] = useState(currentLanguage.code);
 
   const tabs = [
     {
@@ -112,13 +112,7 @@ export default function LanguageLearningPage() {
                 <span className="text-white font-semibold">Current Language</span>
               </div>
               <p className="text-white/70">
-                {currentLanguage === 'en' ? 'English' : 
-                 currentLanguage === 'ar' ? 'العربية' : 
-                 currentLanguage === 'nl' ? 'Nederlands' : 
-                 currentLanguage === 'id' ? 'Bahasa Indonesia' : 
-                 currentLanguage === 'ms' ? 'Bahasa Melayu' : 
-                 currentLanguage === 'th' ? 'ไทย' : 
-                 currentLanguage === 'km' ? 'ខ្មែរ' : currentLanguage}
+                {currentLanguage.native}
               </p>
             </div>
             
@@ -127,7 +121,7 @@ export default function LanguageLearningPage() {
                 <Users className="w-6 h-6 text-green-400" />
                 <span className="text-white font-semibold">Learning Languages</span>
               </div>
-              <p className="text-white/70">{selectedLanguages.length} languages selected</p>
+              <p className="text-white/70">{languages.length} languages available</p>
             </div>
             
             <div className="bg-white/5 rounded-lg p-4">
@@ -180,7 +174,7 @@ export default function LanguageLearningPage() {
               <Globe className="w-8 h-8 text-blue-400" />
               <div>
                 <div className="text-white font-semibold">Languages</div>
-                <div className="text-white/70 text-sm">{selectedLanguages.length} Active</div>
+                <div className="text-white/70 text-sm">{languages.length} Available</div>
               </div>
             </div>
           </div>

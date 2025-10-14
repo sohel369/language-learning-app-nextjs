@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useLanguage } from '../contexts/LanguageContext';
+import { useLanguage, languages } from '../contexts/LanguageContext';
 import { 
   Globe, 
   Check, 
@@ -34,7 +34,7 @@ interface LanguageSupportProps {
 }
 
 export default function LanguageSupport({ onLanguageChange }: LanguageSupportProps) {
-  const { currentLanguage, setCurrentLanguage, availableLanguages } = useLanguage();
+  const { currentLanguage, setCurrentLanguage } = useLanguage();
   const [selectedLanguage, setSelectedLanguage] = useState<string>(currentLanguage);
   const [showLanguageDetails, setShowLanguageDetails] = useState<string | null>(null);
 

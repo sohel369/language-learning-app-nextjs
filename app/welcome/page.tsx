@@ -23,7 +23,7 @@ export default function WelcomePage() {
   const [formData, setFormData] = useState({
     baseLanguage: 'en',
     learningLanguages: ['en'],
-    interests: [],
+    interests: [] as string[],
     goals: 'conversation'
   });
   const [saving, setSaving] = useState(false);

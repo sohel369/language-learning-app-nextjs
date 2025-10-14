@@ -46,8 +46,7 @@ export default function TestLoadingPage() {
       // Test 3: Database Connection (if user exists)
       if (user) {
         try {
-          const { createClient } = await import('../../lib/supabase');
-          const supabase = createClient();
+          const { supabase } = await import('../../lib/supabase');
           
           const { data, error } = await supabase
             .from('profiles')

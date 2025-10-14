@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 
-interface AccessibilitySettings {
+export interface AccessibilitySettings {
   fontSize: 'small' | 'medium' | 'large' | 'xl';
   highContrast: boolean;
   screenReader: boolean;

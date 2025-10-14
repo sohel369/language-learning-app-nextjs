@@ -164,10 +164,10 @@ export default function TestOAuthFixPage() {
             <h3 className="text-yellow-400 font-semibold mb-4">Setup Instructions:</h3>
             <ol className="text-yellow-300 text-sm space-y-2">
               <li>1. Copy the redirect URL above</li>
-              <li>2. Go to Google Cloud Console > APIs & Services > Credentials</li>
+              <li>2. Go to Google Cloud Console &gt; APIs &amp; Services &gt; Credentials</li>
               <li>3. Edit your OAuth 2.0 Client ID</li>
               <li>4. Add the redirect URL to "Authorized redirect URIs"</li>
-              <li>5. Go to Supabase Dashboard > Authentication > Providers</li>
+              <li>5. Go to Supabase Dashboard &gt; Authentication &gt; Providers</li>
               <li>6. Enable Google provider and add your Client ID and Secret</li>
               <li>7. Set redirect URL in Supabase to: `https://your-project.supabase.co/auth/v1/callback`</li>
             </ol>
