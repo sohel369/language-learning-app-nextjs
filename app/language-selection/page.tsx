@@ -161,6 +161,11 @@ export default function LanguageSelectionPage() {
             <p className="text-white/70 mb-4">
               Select one or more languages you want to learn. Lessons and quizzes will be filtered based on your selection.
             </p>
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 mb-4">
+              <p className="text-blue-300 text-sm">
+                💡 <strong>Tip:</strong> You can select multiple languages to learn simultaneously. Each language will have its own progress tracking.
+              </p>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {availableLanguages.map((lang) => (
                 <button
@@ -182,6 +187,21 @@ export default function LanguageSelectionPage() {
                   </div>
                 </button>
               ))}
+            </div>
+            <div className="mt-4 p-3 bg-white/5 rounded-lg">
+              <p className="text-white/70 text-sm">
+                <strong>Selected Languages:</strong> {selectedLanguages.length} language(s)
+              </p>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {selectedLanguages.map(langCode => {
+                  const lang = availableLanguages.find(l => l.code === langCode);
+                  return (
+                    <span key={langCode} className="bg-green-500/20 text-green-300 px-2 py-1 rounded text-xs">
+                      {lang?.flag} {lang?.name}
+                    </span>
+                  );
+                })}
+              </div>
             </div>
             <p className="text-white/60 text-sm mt-2">
               You can change these preferences later in your profile settings.

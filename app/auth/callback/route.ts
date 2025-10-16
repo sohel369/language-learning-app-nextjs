@@ -160,9 +160,9 @@ export async function GET(request: NextRequest) {
       // Continue with authentication even if profile creation fails
     }
 
-    // Redirect directly to dashboard after successful authentication
-    console.log('Redirecting to dashboard after successful authentication');
-    return NextResponse.redirect(`${origin}/dashboard`);
+    // Redirect to language selection for new users, dashboard for existing users
+    console.log('Redirecting after successful authentication');
+    return NextResponse.redirect(`${origin}/language-selection`);
 
   } catch (error) {
     console.error('Unexpected error in OAuth callback:', error);

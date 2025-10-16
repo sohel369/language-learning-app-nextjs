@@ -24,7 +24,7 @@ export default function SignupPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    learningLanguage: '',
+    learningLanguages: ['en'], // Changed to array for multiple selection
     nativeLanguage: 'en'
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -40,10 +40,19 @@ export default function SignupPage() {
   };
 
   const handleLanguageChange = (languageCode: string, type: 'learning' | 'native') => {
-    setFormData(prev => ({
-      ...prev,
-      [type === 'learning' ? 'learningLanguage' : 'nativeLanguage']: languageCode
-    }));
+    if (type === 'learning') {
+      setFormData(prev => ({
+        ...prev,
+        learningLanguages: prev.learningLanguages.includes(languageCode)
+          ? prev.learningLanguages.filter(lang => lang !== languageCode)
+          : [...prev.learningLanguages, languageCode]
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        nativeLanguage: languageCode
+      }));
+    }
   };
 
   const validateStep1 = () => {
@@ -71,8 +80,8 @@ export default function SignupPage() {
   };
 
   const validateStep2 = () => {
-    if (!formData.learningLanguage) {
-      setError('Please select a language to learn');
+    if (formData.learningLanguages.length === 0) {
+      setError('Please select at least one language to learn');
       return false;
     }
     return true;
@@ -98,7 +107,7 @@ export default function SignupPage() {
         options: {
           data: {
             name: formData.name,
-            learning_language: formData.learningLanguage,
+            learning_languages: formData.learningLanguages,
             native_language: formData.nativeLanguage
           }
         }
@@ -133,7 +142,7 @@ export default function SignupPage() {
                 id: loginData.user.id,
                 name: formData.name,
                 email: formData.email,
-                learning_languages: [formData.learningLanguage],
+                learning_languages: formData.learningLanguages,
                 base_language: formData.nativeLanguage,
                 level: 1,
                 total_xp: 0,
@@ -152,7 +161,7 @@ export default function SignupPage() {
                   id: loginData.user.id,
                   name: formData.name,
                   email: formData.email,
-                  learning_language: formData.learningLanguage,
+                  learning_languages: formData.learningLanguages,
                   native_language: formData.nativeLanguage,
                   level: 1,
                   total_xp: 0,
@@ -175,9 +184,9 @@ export default function SignupPage() {
         }
       }
   
-      // Success: redirect to dashboard
+      // Success: redirect to language selection
       setSuccess(true);
-      setTimeout(() => router.push('/dashboard'), 1500);
+      setTimeout(() => router.push('/language-selection'), 1500);
   
     } catch (err) {
       setError('Unexpected error: ' + (err instanceof Error ? err.message : 'Unknown'));
@@ -224,7 +233,7 @@ export default function SignupPage() {
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">Account Created!</h1>
             <p className="text-white/70 mb-6">
-              Welcome to your language learning journey! Redirecting to your profile...
+              Welcome to your language learning journey! Redirecting to language selection...
             </p>
             <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
           </div>
@@ -242,12 +251,12 @@ export default function SignupPage() {
             <span className="text-white font-bold text-2xl">L</span>
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">
-            {step === 1 ? 'Create Account' : 'Choose Your Language'}
+            {step === 1 ? 'Create Account' : 'Choose Your Languages'}
           </h1>
           <p className="text-white/70">
             {step === 1 
               ? 'Join thousands of learners worldwide' 
-              : 'What language would you like to learn?'
+              : 'What languages would you like to learn?'
             }
           </p>
         </div>
@@ -405,28 +414,39 @@ export default function SignupPage() {
                 </div>
               </div>
 
-              {/* Learning Language Selection */}
+              {/* Learning Languages Selection */}
               <div>
                 <label className="block text-white/80 text-sm font-medium mb-3">
-                  Language You Want to Learn
+                  Languages You Want to Learn
                 </label>
+                <p className="text-white/60 text-xs mb-3">
+                  Select one or more languages. You can change these later.
+                </p>
                 <div className="grid grid-cols-2 gap-3">
                   {languages.map((lang) => (
                     <button
                       key={lang.code}
                       type="button"
                       onClick={() => handleLanguageChange(lang.code, 'learning')}
-                      className={`p-3 rounded-lg border-2 transition-all ${
-                        formData.learningLanguage === lang.code
+                      className={`p-3 rounded-lg border-2 transition-all relative ${
+                        formData.learningLanguages.includes(lang.code)
                           ? 'border-purple-500 bg-purple-500/20 text-white'
                           : 'border-white/20 bg-white/5 text-white/70 hover:border-white/40 hover:text-white'
                       }`}
                     >
                       <div className="text-2xl mb-1">{lang.flag}</div>
                       <div className="text-sm font-medium">{lang.name}</div>
+                      {formData.learningLanguages.includes(lang.code) && (
+                        <div className="absolute top-2 right-2 w-4 h-4 bg-purple-500 rounded-full flex items-center justify-center">
+                          <Check className="w-3 h-3 text-white" />
+                        </div>
+                      )}
                     </button>
                   ))}
                 </div>
+                <p className="text-white/50 text-xs mt-2">
+                  Selected: {formData.learningLanguages.length} language(s)
+                </p>
               </div>
 
               {/* Error Message */}
