@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { Mic, MicOff, Volume2, Bot, Send, Loader2 } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Mic, MicOff, Volume2, VolumeX, Bot, Send, Loader2, Play, Pause, Square } from 'lucide-react';
+import { useAICoachAudio } from '../hooks/useAICoachAudio';
 
 interface AICoachProps {
   language: string;
@@ -16,6 +17,7 @@ export default function AICoach({ language, isRTL = false }: AICoachProps) {
     type: 'user' | 'ai';
     content: string;
     timestamp: Date;
+    audioControls?: any;
   }>>([
     {
       id: '1',
@@ -25,10 +27,98 @@ export default function AICoach({ language, isRTL = false }: AICoachProps) {
     }
   ]);
   const [inputText, setInputText] = useState('');
+  const [currentlyPlayingId, setCurrentlyPlayingId] = useState<string | null>(null);
+  const [ttsEnabled, setTtsEnabled] = useState(true);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  
+  const { 
+    playAIResponse, 
+    stopAll, 
+    isPlaying, 
+    isPaused, 
+    isLoading: audioLoading, 
+    error: audioError,
+    soundEnabled 
+  } = useAICoachAudio();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Auto-scroll to bottom when new messages are added
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // Cleanup audio when component unmounts
+  useEffect(() => {
+    return () => {
+      stopAll();
+      if (utteranceRef.current) {
+        speechSynthesis.cancel();
+      }
+    };
+  }, [stopAll]);
+
+  // TTS function to read text aloud
+  const speakText = (text: string) => {
+    if (!ttsEnabled || !('speechSynthesis' in window)) {
+      return;
+    }
+
+    // Stop any current speech
+    speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Set language based on selected language
+    const languageMap: { [key: string]: string } = {
+      'ar': 'ar-SA',
+      'en': 'en-US',
+      'nl': 'nl-NL',
+      'id': 'id-ID',
+      'ms': 'ms-MY',
+      'th': 'th-TH',
+      'km': 'km-KH'
+    };
+    
+    utterance.lang = languageMap[language] || 'en-US';
+    utterance.rate = 0.8; // Slightly slower for better comprehension
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+
+    // Try to find a suitable voice
+    const voices = speechSynthesis.getVoices();
+    const suitableVoice = voices.find(voice => 
+      voice.lang.startsWith(languageMap[language] || 'en-US')
+    );
+    
+    if (suitableVoice) {
+      utterance.voice = suitableVoice;
+    }
+
+    utterance.onstart = () => {
+      setIsSpeaking(true);
+    };
+
+    utterance.onend = () => {
+      setIsSpeaking(false);
+    };
+
+    utterance.onerror = (event) => {
+      console.error('Speech synthesis error:', event.error);
+      setIsSpeaking(false);
+    };
+
+    utteranceRef.current = utterance;
+    speechSynthesis.speak(utterance);
+  };
+
+  const stopSpeaking = () => {
+    speechSynthesis.cancel();
+    setIsSpeaking(false);
   };
 
   const handleVoiceInput = () => {
@@ -91,8 +181,19 @@ export default function AICoach({ language, isRTL = false }: AICoachProps) {
     setInputText('');
     setIsProcessing(true);
 
+    // First, read back the user's text for pronunciation practice
+    if (soundEnabled) {
+      try {
+        await playAIResponse(`Let me read that back to you: "${messageText}"`, language);
+        // Small delay before AI response
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      } catch (error) {
+        console.error('Failed to read back user text:', error);
+      }
+    }
+
     // Simulate AI response (replace with actual AI API call)
-    setTimeout(() => {
+    setTimeout(async () => {
       const aiResponse = generateAIResponse(messageText, language);
       const aiMessage = {
         id: (Date.now() + 1).toString(),
@@ -100,9 +201,18 @@ export default function AICoach({ language, isRTL = false }: AICoachProps) {
         content: aiResponse,
         timestamp: new Date()
       };
+      
       setMessages(prev => [...prev, aiMessage]);
       setIsProcessing(false);
-    }, 1500);
+      
+      // Automatically read AI response aloud
+      if (ttsEnabled) {
+        // Small delay to ensure message is displayed first
+        setTimeout(() => {
+          speakText(aiResponse);
+        }, 500);
+      }
+    }, soundEnabled ? 3000 : 1500); // Longer delay if we're reading back the text
   };
 
   const generateAIResponse = (userInput: string, lang: string): string => {
@@ -110,29 +220,85 @@ export default function AICoach({ language, isRTL = false }: AICoachProps) {
       pronunciation: [
         "Great pronunciation! Your accent is improving. Try to emphasize the 'th' sound more clearly.",
         "Good attempt! The word should be pronounced with more emphasis on the second syllable.",
-        "Excellent! Your pronunciation is very clear. Keep practicing to maintain this level."
+        "Excellent! Your pronunciation is very clear. Keep practicing to maintain this level.",
+        "Nice work! Try to slow down a bit and focus on each syllable clearly.",
+        "Good pronunciation! Remember to keep your tongue relaxed for better clarity."
       ],
       grammar: [
         "That's a good sentence structure! Remember to use the correct tense for past events.",
         "Almost perfect! Just remember to add the article 'the' before the noun.",
-        "Great grammar! You're using the conditional tense correctly."
+        "Great grammar! You're using the conditional tense correctly.",
+        "Good sentence! Try to practice the pronunciation of the past tense ending.",
+        "Excellent grammar! Now let's work on making it sound more natural when you speak."
       ],
       vocabulary: [
         "Excellent word choice! That's a more advanced vocabulary word. Well done!",
         "Good use of vocabulary! You could also use 'magnificent' as a synonym for 'great'.",
-        "Perfect! You're expanding your vocabulary nicely. Keep learning new words!"
+        "Perfect! You're expanding your vocabulary nicely. Keep learning new words!",
+        "Great word! Practice saying it slowly to get the pronunciation just right.",
+        "Nice vocabulary! Try to use this word in different sentences to practice."
       ],
       general: [
         "That's a great question! Let me help you understand this concept better.",
         "I can see you're making good progress! Keep up the excellent work.",
-        "Wonderful! You're showing real improvement in your language skills."
+        "Wonderful! You're showing real improvement in your language skills.",
+        "Good practice! Try to speak a bit louder and more confidently.",
+        "Excellent! Your language learning is progressing well. Keep practicing!"
       ]
     };
 
-    const categories = Object.keys(responses);
-    const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-    const categoryResponses = responses[randomCategory as keyof typeof responses];
-    return categoryResponses[Math.floor(Math.random() * categoryResponses.length)];
+    // Add pronunciation-specific responses based on input length
+    if (userInput.length < 10) {
+      return responses.pronunciation[Math.floor(Math.random() * responses.pronunciation.length)];
+    } else if (userInput.length < 30) {
+      return responses.vocabulary[Math.floor(Math.random() * responses.vocabulary.length)];
+    } else {
+      return responses.grammar[Math.floor(Math.random() * responses.grammar.length)];
+    }
+  };
+
+  const handlePlayMessage = async (messageId: string, content: string) => {
+    if (currentlyPlayingId === messageId) {
+      // If this message is currently playing, stop it
+      stopAll();
+      setCurrentlyPlayingId(null);
+      return;
+    }
+
+    // Stop any currently playing audio
+    stopAll();
+    setCurrentlyPlayingId(messageId);
+
+    try {
+      await playAIResponse(content, language);
+    } catch (error) {
+      console.error('Failed to play message:', error);
+      setCurrentlyPlayingId(null);
+    }
+  };
+
+  const handleReadBackUserText = async (messageId: string, content: string) => {
+    if (currentlyPlayingId === messageId) {
+      stopAll();
+      setCurrentlyPlayingId(null);
+      return;
+    }
+
+    stopAll();
+    setCurrentlyPlayingId(messageId);
+
+    try {
+      // Read back the user's text with proper pronunciation
+      await playAIResponse(`Here's how to pronounce that: "${content}"`, language);
+    } catch (error) {
+      console.error('Failed to read back user text:', error);
+      setCurrentlyPlayingId(null);
+    }
+  };
+
+  const handleStopAll = () => {
+    stopAll();
+    setCurrentlyPlayingId(null);
   };
 
   return (
@@ -165,9 +331,48 @@ export default function AICoach({ language, isRTL = false }: AICoachProps) {
                 }`}
               >
                 <p className="text-sm">{message.content}</p>
-                <p className="text-xs opacity-70 mt-1">
-                  {message.timestamp.toLocaleTimeString()}
-                </p>
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-xs opacity-70">
+                    {message.timestamp.toLocaleTimeString()}
+                  </p>
+                  {soundEnabled && (
+                    <div className="flex items-center space-x-1">
+                      {message.type === 'user' ? (
+                        <button
+                          onClick={() => handleReadBackUserText(message.id, message.content)}
+                          className={`p-1 rounded transition-colors ${
+                            currentlyPlayingId === message.id
+                              ? 'bg-red-600 hover:bg-red-700'
+                              : 'bg-green-600 hover:bg-green-700'
+                          }`}
+                          title={currentlyPlayingId === message.id ? 'Stop reading' : 'Hear pronunciation'}
+                        >
+                          {currentlyPlayingId === message.id ? (
+                            <Square className="w-3 h-3" />
+                          ) : (
+                            <Volume2 className="w-3 h-3" />
+                          )}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handlePlayMessage(message.id, message.content)}
+                          className={`p-1 rounded transition-colors ${
+                            currentlyPlayingId === message.id
+                              ? 'bg-red-600 hover:bg-red-700'
+                              : 'bg-blue-600 hover:bg-blue-700'
+                          }`}
+                          title={currentlyPlayingId === message.id ? 'Stop audio' : 'Play audio'}
+                        >
+                          {currentlyPlayingId === message.id ? (
+                            <Square className="w-3 h-3" />
+                          ) : (
+                            <Play className="w-3 h-3" />
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ))}
@@ -177,6 +382,26 @@ export default function AICoach({ language, isRTL = false }: AICoachProps) {
                 <div className="flex items-center space-x-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span className="text-sm">AI is thinking...</span>
+                </div>
+              </div>
+            </div>
+          )}
+          {audioLoading && (
+            <div className="flex justify-start">
+              <div className="bg-blue-700 text-white px-4 py-3 rounded-lg">
+                <div className="flex items-center space-x-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">Preparing audio...</span>
+                </div>
+              </div>
+            </div>
+          )}
+          {audioError && (
+            <div className="flex justify-start">
+              <div className="bg-red-700 text-white px-4 py-3 rounded-lg">
+                <div className="flex items-center space-x-2">
+                  <VolumeX className="w-4 h-4" />
+                  <span className="text-sm">Audio error: {audioError}</span>
                 </div>
               </div>
             </div>
@@ -210,6 +435,16 @@ export default function AICoach({ language, isRTL = false }: AICoachProps) {
           >
             {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
           </button>
+          {inputText.trim() && soundEnabled && (
+            <button
+              onClick={() => handleReadBackUserText('input', inputText)}
+              disabled={isProcessing}
+              className="p-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+              title="Hear pronunciation"
+            >
+              <Volume2 className="w-5 h-5" />
+            </button>
+          )}
           <button
             onClick={() => handleSendMessage()}
             disabled={!inputText.trim() || isProcessing}
@@ -220,14 +455,48 @@ export default function AICoach({ language, isRTL = false }: AICoachProps) {
         </div>
         
         <div className="flex items-center justify-between mt-3">
-          <p className="text-xs text-gray-400">
-            {isListening ? 'Listening...' : 'Click microphone to speak'}
-          </p>
+          <div className="text-xs text-gray-400">
+            {isListening ? (
+              'Listening...'
+            ) : (
+              <div>
+                <div>Click microphone to speak</div>
+                {ttsEnabled && (
+                  <div className="text-green-400 mt-1">
+                    🔊 AI responses read aloud automatically
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
           <div className="flex items-center space-x-2">
-            <button className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg">
-              <Volume2 className="w-4 h-4 text-white" />
+            {/* TTS Toggle */}
+            <button
+              onClick={() => setTtsEnabled(!ttsEnabled)}
+              className={`p-2 rounded-lg transition-colors ${
+                ttsEnabled 
+                  ? 'bg-green-600 hover:bg-green-700' 
+                  : 'bg-gray-600 hover:bg-gray-700'
+              }`}
+              title={ttsEnabled ? 'Disable TTS' : 'Enable TTS'}
+            >
+              {ttsEnabled ? <Volume2 className="w-4 h-4 text-white" /> : <VolumeX className="w-4 h-4 text-white" />}
             </button>
-            <span className="text-xs text-gray-400">Voice feedback</span>
+            
+            {/* Stop Speaking Button */}
+            {isSpeaking && (
+              <button
+                onClick={stopSpeaking}
+                className="p-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                title="Stop speaking"
+              >
+                <Square className="w-4 h-4 text-white" />
+              </button>
+            )}
+            
+            <span className="text-xs text-gray-400">
+              {ttsEnabled ? 'TTS enabled' : 'TTS disabled'}
+            </span>
           </div>
         </div>
       </div>

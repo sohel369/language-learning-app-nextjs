@@ -19,19 +19,25 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useSettings } from '../../contexts/SettingsContext';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useGlobalNotifications } from '../../hooks/useGlobalNotifications';
 import { languages } from '../../contexts/LanguageContext';
 import NotificationBell from '../../components/NotificationBell';
 import BottomNavigation from '../../components/BottomNavigation';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import DashboardNotificationPopup from '../../components/DashboardNotificationPopup';
+import SettingsModal from '../../components/SettingsModal';
 
 export default function DashboardPage() {
   const { user, loading, authChecked } = useAuth();
   const { currentLanguage, setCurrentLanguage, isRTL } = useLanguage();
+  const { settings } = useSettings();
+  const { showNotificationWithSound } = useGlobalNotifications();
   const t = useTranslation();
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
   const [showNotificationPopup, setShowNotificationPopup] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [currentNotification, setCurrentNotification] = useState<{
     title: string;
     message: string;
@@ -50,6 +56,17 @@ export default function DashboardPage() {
   const showNotification = (title: string, message: string, type: 'success' | 'info' | 'warning' | 'error' = 'info') => {
     setCurrentNotification({ title, message, type });
     setShowNotificationPopup(true);
+    
+    // Also show browser notification if enabled
+    if (settings?.notifications_enabled) {
+      showNotificationWithSound({
+        title,
+        body: message,
+        icon: '/favicon.ico',
+        tag: `dashboard-${type}`,
+        requireInteraction: type === 'error' || type === 'warning',
+      });
+    }
   };
 
   // Simulate notifications for demonstration
@@ -117,6 +134,32 @@ export default function DashboardPage() {
             </div>
             
             <div className="flex items-center space-x-4">
+              {/* Language Tabs */}
+              <div className="flex bg-white/10 rounded-lg p-1">
+                <button
+                  onClick={() => handleLanguageChange('en')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
+                    currentLanguage.code === 'en' 
+                      ? 'bg-blue-600 text-white shadow-lg' 
+                      : 'text-white/70 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <span>🇺🇸</span>
+                  <span>English</span>
+                </button>
+                <button
+                  onClick={() => handleLanguageChange('ar')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
+                    currentLanguage.code === 'ar' 
+                      ? 'bg-blue-600 text-white shadow-lg' 
+                      : 'text-white/70 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <span>🇸🇦</span>
+                  <span>العربية</span>
+                </button>
+              </div>
+              
               <button
                 onClick={() => showNotification(
                   'Test Notification 🔔',
@@ -129,7 +172,12 @@ export default function DashboardPage() {
               </button>
               <Globe className="w-6 h-6 text-white/70 hover:text-white transition-colors cursor-pointer" />
               <NotificationBell />
-              <Settings className="w-6 h-6 text-white/70 hover:text-white transition-colors cursor-pointer" />
+              <button
+                onClick={() => setShowSettingsModal(true)}
+                className="text-white/70 hover:text-white transition-colors"
+              >
+                <Settings className="w-6 h-6" />
+              </button>
               <Link href="/profile" className="text-white/70 hover:text-white transition-colors">
                 <User className="w-6 h-6" />
               </Link>
@@ -142,42 +190,13 @@ export default function DashboardPage() {
             {/* Welcome Section */}
             <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-8 relative overflow-hidden">
               <div className="relative z-10">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h2 className="text-3xl font-bold text-white mb-2">
-                      {t('welcome')}! 👋
-                    </h2>
-                    <p className="text-white/80 text-lg">
-                      {t('readyToLearn')}
-                    </p>
-                  </div>
-                  
-                  {/* Language Toggle */}
-                  <div className="flex items-center space-x-3">
-                    <div className="flex bg-white/20 rounded-lg p-1">
-                      <button
-                        onClick={() => handleLanguageChange('en')}
-                        className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                          currentLanguage.code === 'en' 
-                            ? 'bg-blue-600 text-white' 
-                            : 'text-white/70 hover:text-white'
-                        }`}
-                      >
-                        🇺🇸 English
-                      </button>
-                      <button
-                        onClick={() => handleLanguageChange('ar')}
-                        className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                          currentLanguage.code === 'ar' 
-                            ? 'bg-blue-600 text-white' 
-                            : 'text-white/70 hover:text-white'
-                        }`}
-                      >
-                        🇸🇦 العربية
-                      </button>
-                    </div>
-                    <Settings className="w-5 h-5 text-white/70" />
-                  </div>
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold text-white mb-2">
+                    {t('welcome')}! 👋
+                  </h2>
+                  <p className="text-white/80 text-lg">
+                    {t('readyToLearn')}
+                  </p>
                 </div>
 
                 {/* User Stats */}
@@ -350,6 +369,12 @@ export default function DashboardPage() {
             type={currentNotification.type}
           />
         )}
+        
+        {/* Settings Modal */}
+        <SettingsModal
+          isOpen={showSettingsModal}
+          onClose={() => setShowSettingsModal(false)}
+        />
         
       </div>
     </ProtectedRoute>

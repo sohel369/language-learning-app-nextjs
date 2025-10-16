@@ -5,9 +5,11 @@ import { LanguageProvider } from "../contexts/LanguageContext";
 import { AccessibilityProvider } from "../contexts/AccessibilityContext";
 import { AuthProvider } from "../contexts/AuthContext";
 import { NotificationProvider } from "../contexts/NotificationContext";
+import { SettingsProvider } from "../contexts/SettingsContext";
 import ErrorBoundary from "../components/ErrorBoundary";
 import AuthFlowGuard from "../components/AuthFlowGuard";
 import NotificationPopupWrapper from "../components/NotificationPopupWrapper";
+import GlobalThemeProvider from "../components/GlobalThemeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,15 +38,19 @@ export default function RootLayout({
       >
         <ErrorBoundary>
           <AuthProvider>
-            <LanguageProvider>
-              <AccessibilityProvider>
-                <NotificationProvider>
-                  <NotificationPopupWrapper>
-                    {children}
-                  </NotificationPopupWrapper>
-                </NotificationProvider>
-              </AccessibilityProvider>
-            </LanguageProvider>
+            <SettingsProvider>
+              <GlobalThemeProvider>
+                <LanguageProvider>
+                  <AccessibilityProvider>
+                    <NotificationProvider>
+                      <NotificationPopupWrapper>
+                        {children}
+                      </NotificationPopupWrapper>
+                    </NotificationProvider>
+                  </AccessibilityProvider>
+                </LanguageProvider>
+              </GlobalThemeProvider>
+            </SettingsProvider>
           </AuthProvider>
         </ErrorBoundary>
       </body>
