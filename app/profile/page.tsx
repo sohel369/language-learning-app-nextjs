@@ -31,6 +31,7 @@ import {
 import LiveLeaderboard from '../../components/LiveLeaderboard';
 import UserSettings from '../../components/UserSettings';
 import ProfileSettings from '../../components/ProfileSettings';
+import QuizHistoryComponent from '../../components/QuizHistory';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useAccessibility } from '../../contexts/AccessibilityContext';
@@ -349,6 +350,17 @@ export default function ProfilePage() {
             <span>Stats</span>
           </button>
           <button
+            onClick={() => setCurrentTab('quiz-history')}
+            className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg transition-all ${
+              currentTab === 'quiz-history' 
+                ? 'bg-purple-600 text-white' 
+                : 'text-white/70 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            <Trophy className="w-5 h-5" />
+            <span>Quiz History</span>
+          </button>
+          <button
             onClick={() => setCurrentTab('settings')}
             className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg transition-all ${
               currentTab === 'settings' 
@@ -501,6 +513,13 @@ export default function ProfilePage() {
                 <p className="text-yellow-200 text-sm mt-2">Keep learning to unlock them! Complete lessons and quizzes to earn your first achievement.</p>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Quiz History Tab */}
+        {currentTab === 'quiz-history' && (
+          <div className="space-y-6">
+            <QuizHistoryComponent userId={user?.id || ''} limit={10} />
           </div>
         )}
 
