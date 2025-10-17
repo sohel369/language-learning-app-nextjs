@@ -36,6 +36,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useAccessibility } from '../../contexts/AccessibilityContext';
 import ProtectedRoute from '../../components/ProtectedRoute';
+import ResponsiveTabs, { TabItem } from '../../components/ResponsiveTabs';
 import { supabase } from '../../lib/supabase';
 
 const languages = [
@@ -336,53 +337,40 @@ export default function ProfilePage() {
           )}
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex space-x-1 mb-8 bg-white/10 rounded-xl p-1">
-          <button
-            onClick={() => setCurrentTab('stats')}
-            className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg transition-all ${
-              currentTab === 'stats' 
-                ? 'bg-purple-600 text-white' 
-                : 'text-white/70 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            <Target className="w-5 h-5" />
-            <span>Stats</span>
-          </button>
-          <button
-            onClick={() => setCurrentTab('quiz-history')}
-            className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg transition-all ${
-              currentTab === 'quiz-history' 
-                ? 'bg-purple-600 text-white' 
-                : 'text-white/70 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            <Trophy className="w-5 h-5" />
-            <span>Quiz History</span>
-          </button>
-          <button
-            onClick={() => setCurrentTab('settings')}
-            className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg transition-all ${
-              currentTab === 'settings' 
-                ? 'bg-purple-600 text-white' 
-                : 'text-white/70 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            <Settings className="w-5 h-5" />
-            <span>Settings</span>
-          </button>
-          <button
-            onClick={() => setCurrentTab('leaderboard')}
-            className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg transition-all ${
-              currentTab === 'leaderboard' 
-                ? 'bg-purple-600 text-white' 
-                : 'text-white/70 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            <Trophy className="w-5 h-5" />
-            <span>Leaderboard</span>
-          </button>
-        </div>
+        {/* Responsive Tab Navigation */}
+        <ResponsiveTabs
+          tabs={[
+            {
+              id: 'stats',
+              label: 'Stats',
+              icon: Target,
+              description: 'Your learning progress'
+            },
+            {
+              id: 'quiz-history',
+              label: 'Quiz History',
+              icon: Trophy,
+              description: 'Past quiz results'
+            },
+            {
+              id: 'settings',
+              label: 'Settings',
+              icon: Settings,
+              description: 'Account preferences'
+            },
+            {
+              id: 'leaderboard',
+              label: 'Leaderboard',
+              icon: Crown,
+              description: 'Global rankings'
+            }
+          ]}
+          activeTab={currentTab}
+          onTabChange={setCurrentTab}
+          variant="pills"
+          size="md"
+          className="mb-8"
+        />
 
         {/* Stats Tab */}
         {currentTab === 'stats' && (

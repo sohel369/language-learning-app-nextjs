@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useLanguage, languages } from '../../contexts/LanguageContext';
 import LanguageSupport from '../../components/LanguageSupport';
 import SocialQuizzes from '../../components/SocialQuizzes';
+import ResponsiveTabs, { TabItem } from '../../components/ResponsiveTabs';
 import { 
   Globe, 
   Users, 
@@ -134,33 +135,20 @@ export default function LanguageLearningPage() {
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`p-6 rounded-lg transition-all duration-200 ${
-                    activeTab === tab.id
-                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/25'
-                      : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
-                  }`}
-                >
-                  <div className="flex flex-col items-center space-y-3">
-                    <Icon className="w-8 h-8" />
-                    <div className="text-center">
-                      <div className="font-semibold text-lg">{tab.name}</div>
-                      <div className="text-sm opacity-75">{tab.description}</div>
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        {/* Responsive Tab Navigation */}
+        <ResponsiveTabs
+          tabs={tabs.map(tab => ({
+            id: tab.id,
+            label: tab.name,
+            icon: tab.icon,
+            description: tab.description
+          }))}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          variant="cards"
+          size="lg"
+          className="mb-8"
+        />
 
         {/* Active Tab Content */}
         <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">

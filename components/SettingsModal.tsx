@@ -108,9 +108,32 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </button>
         </div>
 
-        <div className="flex h-[600px]">
-          {/* Sidebar */}
-          <div className="w-64 bg-slate-900/50 border-r border-slate-700 p-4">
+        <div className="flex flex-col lg:flex-row h-[600px]">
+          {/* Mobile Tab Navigation */}
+          <div className="lg:hidden border-b border-slate-700 p-4">
+            <div className="flex overflow-x-auto space-x-2 scrollbar-hide">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`flex-shrink-0 flex items-center space-x-2 px-4 py-2 rounded-lg text-sm transition-colors ${
+                      activeTab === tab.id
+                        ? 'bg-blue-600 text-white'
+                        : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Desktop Sidebar */}
+          <div className="hidden lg:block w-64 bg-slate-900/50 border-r border-slate-700 p-4">
             <nav className="space-y-2">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
@@ -133,7 +156,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </div>
 
           {/* Content */}
-          <div className="flex-1 p-6 overflow-y-auto">
+          <div className="flex-1 p-4 lg:p-6 overflow-y-auto">
             {activeTab === 'general' && (
               <div className="space-y-6">
                 <h3 className="text-xl font-semibold text-white mb-4">General Settings</h3>
