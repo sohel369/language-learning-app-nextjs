@@ -26,6 +26,7 @@ export default function QuizPage() {
   const [quizTime, setQuizTime] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(0);
+  const [resetCounter, setResetCounter] = useState(0);
 
   useEffect(() => {
     if (user) {
@@ -127,6 +128,7 @@ export default function QuizPage() {
     setQuizTime(0);
     setCurrentQuestion(0);
     setTotalQuestions(0);
+    setResetCounter(prev => prev + 1);
   }, []);
 
   const formatTime = useCallback((seconds: number) => {
@@ -160,45 +162,45 @@ export default function QuizPage() {
     <ProtectedRoute>
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Header */}
-        <div className="p-6 flex-shrink-0">
-          <div className="flex items-center justify-between mb-6">
-            <Link href="/" className="flex items-center space-x-3 text-white hover:text-purple-300 transition-colors">
-              <ArrowLeft className="w-6 h-6" />
-              <span className="text-lg font-medium">Back to Home</span>
+        <div className="p-4 sm:p-6 flex-shrink-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
+            <Link href="/" className="flex items-center space-x-2 sm:space-x-3 text-white hover:text-purple-300 transition-colors">
+              <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+              <span className="text-base sm:text-lg font-medium">Back to Home</span>
             </Link>
             
             <div className="flex items-center space-x-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-white">{currentLanguage.flag}</div>
-                <div className="text-sm text-gray-300">{currentLanguage.native}</div>
+                <div className="text-xl sm:text-2xl font-bold text-white">{currentLanguage.flag}</div>
+                <div className="text-xs sm:text-sm text-gray-300">{currentLanguage.native}</div>
               </div>
             </div>
           </div>
 
           {/* Quiz Challenge Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-white mb-2">Quiz Challenge</h1>
+          <div className="mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">Quiz Challenge</h1>
             
             {/* Language Selection */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-white mb-3">Choose Learning Language:</h3>
-              <div className="flex gap-4">
+            <div className="mb-4 sm:mb-6">
+              <h3 className="text-base sm:text-lg font-semibold text-white mb-3">Choose Learning Language:</h3>
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <button
                   onClick={() => setGlobalLanguage('english')}
-                  className={`px-6 py-3 rounded-xl border-2 transition-all duration-300 ${
+                  className={`px-4 sm:px-6 py-3 sm:py-3 rounded-xl border-2 transition-all duration-300 text-sm sm:text-base font-medium ${
                     globalLanguage === 'english'
-                      ? 'border-blue-500 bg-blue-500/20 text-white'
-                      : 'border-slate-600 bg-slate-700/50 text-slate-300 hover:border-slate-500'
+                      ? 'border-blue-500 bg-blue-500/20 text-white shadow-lg shadow-blue-500/25'
+                      : 'border-slate-600 bg-slate-700/50 text-slate-300 hover:border-slate-500 hover:bg-slate-600/50'
                   }`}
                 >
                   🇺🇸 Learn English
                 </button>
                 <button
                   onClick={() => setGlobalLanguage('arabic')}
-                  className={`px-6 py-3 rounded-xl border-2 transition-all duration-300 ${
+                  className={`px-4 sm:px-6 py-3 sm:py-3 rounded-xl border-2 transition-all duration-300 text-sm sm:text-base font-medium ${
                     globalLanguage === 'arabic'
-                      ? 'border-green-500 bg-green-500/20 text-white'
-                      : 'border-slate-600 bg-slate-700/50 text-slate-300 hover:border-slate-500'
+                      ? 'border-green-500 bg-green-500/20 text-white shadow-lg shadow-green-500/25'
+                      : 'border-slate-600 bg-slate-700/50 text-slate-300 hover:border-slate-500 hover:bg-slate-600/50'
                   }`}
                 >
                   🇸🇦 Learn Arabic
@@ -207,49 +209,51 @@ export default function QuizPage() {
             </div>
             
             {/* Quiz Type Toggle */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex bg-slate-700/50 rounded-xl p-1 border border-slate-600">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-4 sm:mb-6 space-y-4 lg:space-y-0">
+              <div className="flex bg-slate-700/50 rounded-xl p-1 border border-slate-600 w-full lg:w-auto">
                 <button
                   onClick={() => setQuizType('enhanced')}
-                  className={`px-6 py-3 rounded-lg transition-all duration-300 ${
+                  className={`flex-1 lg:flex-none px-4 sm:px-6 py-2 sm:py-3 rounded-lg transition-all duration-300 text-sm sm:text-base ${
                     quizType === 'enhanced' 
                       ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/30' 
                       : 'text-slate-400 hover:text-white hover:bg-slate-600/50'
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <Target size={16} />
-                    Enhanced Quiz
+                  <div className="flex items-center justify-center gap-2">
+                    <Target size={14} className="sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Enhanced Quiz</span>
+                    <span className="sm:hidden">Enhanced</span>
                   </div>
                 </button>
                 <button
                   onClick={() => setQuizType('basic')}
-                  className={`px-6 py-3 rounded-lg transition-all duration-300 ${
+                  className={`flex-1 lg:flex-none px-4 sm:px-6 py-2 sm:py-3 rounded-lg transition-all duration-300 text-sm sm:text-base ${
                     quizType === 'basic' 
                       ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/30' 
                       : 'text-slate-400 hover:text-white hover:bg-slate-600/50'
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <Target size={16} />
-                    Basic Quiz
+                  <div className="flex items-center justify-center gap-2">
+                    <Target size={14} className="sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Basic Quiz</span>
+                    <span className="sm:hidden">Basic</span>
                   </div>
                 </button>
               </div>
 
               {/* Quiz Progress Stats */}
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2 text-white">
-                  <Star className="w-5 h-5 text-yellow-400" />
-                  <span className="font-semibold">{quizScore}</span>
+              <div className="flex items-center justify-center lg:justify-end space-x-3 sm:space-x-4 w-full lg:w-auto">
+                <div className="flex items-center space-x-1 sm:space-x-2 text-white">
+                  <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+                  <span className="text-sm sm:text-base font-semibold">{quizScore}</span>
                 </div>
-                <div className="flex items-center space-x-2 text-white">
-                  <Clock className="w-5 h-5" />
-                  <span className="font-semibold">{quizProgress.formattedTime}</span>
+                <div className="flex items-center space-x-1 sm:space-x-2 text-white">
+                  <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-sm sm:text-base font-semibold">{quizProgress.formattedTime}</span>
                 </div>
-                <div className="flex items-center space-x-2 text-white">
-                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-bold">{quizProgress.percentage}%</span>
+                <div className="flex items-center space-x-1 sm:space-x-2 text-white">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span className="text-xs sm:text-sm font-bold">{quizProgress.percentage}%</span>
                   </div>
                 </div>
               </div>
@@ -260,6 +264,7 @@ export default function QuizPage() {
           <div className="flex-1 overflow-y-auto pb-20">
             <Suspense fallback={<QuizLoadingSpinner message="Loading quiz..." size="md" />}>
               <QuizScreen 
+                key={`quiz-${globalLanguage}-${resetCounter}`}
                 selectedLanguage={globalLanguage}
                 onFinish={(score, total) => {
                   setQuizScore(score);
@@ -272,22 +277,11 @@ export default function QuizPage() {
                   setTotalQuestions(total);
                 }}
                 onQuizStart={() => setQuizStarted(true)}
+                onResetQuiz={resetQuiz}
                 quizType={quizType}
               />
             </Suspense>
 
-            {/* Reset Quiz Button */}
-            {quizStarted && (
-              <div className="mt-6 flex justify-center pb-8">
-                <button
-                  onClick={resetQuiz}
-                  className="flex items-center gap-2 px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-medium transition-colors"
-                >
-                  <RotateCcw className="w-5 h-5" />
-                  Reset Quiz
-                </button>
-              </div>
-            )}
           </div>
         </div>
         
@@ -295,6 +289,7 @@ export default function QuizPage() {
         <div className="flex-shrink-0">
           <BottomNavigation />
         </div>
+        
       </div>
     </ProtectedRoute>
   );

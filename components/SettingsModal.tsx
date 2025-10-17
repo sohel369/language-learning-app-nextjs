@@ -95,37 +95,37 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-slate-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
+      <div className="bg-slate-800 rounded-lg sm:rounded-2xl w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-700">
-          <h2 className="text-2xl font-bold text-white">Settings</h2>
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-700">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white">Settings</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
           >
-            <X className="w-6 h-6 text-white" />
+            <X className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </button>
         </div>
 
-        <div className="flex flex-col lg:flex-row h-[600px]">
+        <div className="flex flex-col lg:flex-row h-[500px] sm:h-[600px]">
           {/* Mobile Tab Navigation */}
-          <div className="lg:hidden border-b border-slate-700 p-4">
-            <div className="flex overflow-x-auto space-x-2 scrollbar-hide">
+          <div className="lg:hidden border-b border-slate-700 p-3 sm:p-4">
+            <div className="flex overflow-x-auto space-x-1 sm:space-x-2 scrollbar-hide">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as any)}
-                    className={`flex-shrink-0 flex items-center space-x-2 px-4 py-2 rounded-lg text-sm transition-colors ${
+                    className={`flex-shrink-0 flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 rounded-lg text-xs sm:text-sm transition-colors ${
                       activeTab === tab.id
                         ? 'bg-blue-600 text-white'
                         : 'text-slate-300 hover:bg-slate-700 hover:text-white'
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
-                    <span>{tab.label}</span>
+                    <Icon className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden xs:inline">{tab.label}</span>
                   </button>
                 );
               })}
@@ -133,22 +133,22 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </div>
 
           {/* Desktop Sidebar */}
-          <div className="hidden lg:block w-64 bg-slate-900/50 border-r border-slate-700 p-4">
-            <nav className="space-y-2">
+          <div className="hidden lg:block w-56 xl:w-64 bg-slate-900/50 border-r border-slate-700 p-3 xl:p-4">
+            <nav className="space-y-1 xl:space-y-2">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as any)}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                    className={`w-full flex items-center space-x-2 xl:space-x-3 px-3 xl:px-4 py-2 xl:py-3 rounded-lg text-left transition-colors ${
                       activeTab === tab.id
                         ? 'bg-blue-600 text-white'
                         : 'text-slate-300 hover:bg-slate-700 hover:text-white'
                     }`}
                   >
-                    <Icon className="w-5 h-5" />
-                    <span>{tab.label}</span>
+                    <Icon className="w-4 h-4 xl:w-5 xl:h-5" />
+                    <span className="text-sm xl:text-base">{tab.label}</span>
                   </button>
                 );
               })}
@@ -156,28 +156,28 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </div>
 
           {/* Content */}
-          <div className="flex-1 p-4 lg:p-6 overflow-y-auto">
+          <div className="flex-1 p-3 sm:p-4 lg:p-6 overflow-y-auto">
             {activeTab === 'general' && (
-              <div className="space-y-6">
-                <h3 className="text-xl font-semibold text-white mb-4">General Settings</h3>
+              <div className="space-y-4 sm:space-y-6">
+                <h3 className="text-lg sm:text-xl font-semibold text-white mb-3 sm:mb-4">General Settings</h3>
                 
                 {/* Language Selection */}
                 <div className="space-y-3">
-                  <label className="block text-white font-medium">Language</label>
-                  <div className="grid grid-cols-2 gap-3">
+                  <label className="block text-white font-medium text-sm sm:text-base">Language</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                     {languages.map((lang) => (
                       <button
                         key={lang.code}
                         onClick={() => handleLanguageChange(lang.code)}
-                        className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                        className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 ${
                           settings?.interface_language === lang.code
                             ? 'bg-blue-600 border-blue-600 text-white'
                             : 'bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600/50'
                         }`}
                       >
                         <div className="text-center">
-                          <div className="text-lg font-semibold mb-1">{lang.name}</div>
-                          <div className="text-sm text-white/80">{lang.native}</div>
+                          <div className="text-sm sm:text-base lg:text-lg font-semibold mb-1">{lang.name}</div>
+                          <div className="text-xs sm:text-sm text-white/80">{lang.native}</div>
                         </div>
                       </button>
                     ))}
@@ -187,13 +187,13 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             )}
 
             {activeTab === 'appearance' && (
-              <div className="space-y-6">
-                <h3 className="text-xl font-semibold text-white mb-4">Appearance</h3>
+              <div className="space-y-4 sm:space-y-6">
+                <h3 className="text-lg sm:text-xl font-semibold text-white mb-3 sm:mb-4">Appearance</h3>
                 
                 {/* Theme Selection */}
                 <div className="space-y-3">
-                  <label className="block text-white font-medium">Theme</label>
-                  <div className="grid grid-cols-3 gap-3">
+                  <label className="block text-white font-medium text-sm sm:text-base">Theme</label>
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3">
                     {[
                       { value: 'light', label: 'Light', icon: Sun },
                       { value: 'dark', label: 'Dark', icon: Moon },
@@ -204,14 +204,14 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                         <button
                           key={theme.value}
                           onClick={() => handleSettingChange('theme', theme.value)}
-                          className={`p-4 rounded-xl border-2 transition-all duration-200 flex flex-col items-center space-y-2 ${
+                          className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 flex flex-col items-center space-y-1 sm:space-y-2 ${
                             settings?.theme === theme.value
                               ? 'bg-blue-600 border-blue-600 text-white'
                               : 'bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600/50'
                           }`}
                         >
-                          <Icon className="w-6 h-6" />
-                          <span className="font-medium">{theme.label}</span>
+                          <Icon className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
+                          <span className="font-medium text-xs sm:text-sm">{theme.label}</span>
                         </button>
                       );
                     })}
@@ -220,8 +220,8 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
                 {/* Font Size */}
                 <div className="space-y-3">
-                  <label className="block text-white font-medium">Font Size</label>
-                  <div className="grid grid-cols-3 gap-3">
+                  <label className="block text-white font-medium text-sm sm:text-base">Font Size</label>
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3">
                     {[
                       { value: 'small', label: 'Small', size: 'text-sm' },
                       { value: 'medium', label: 'Medium', size: 'text-base' },
@@ -230,13 +230,13 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                       <button
                         key={font.value}
                         onClick={() => handleSettingChange('font_size', font.value)}
-                        className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                        className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 transition-all duration-200 ${
                           settings?.font_size === font.value
                             ? 'bg-blue-600 border-blue-600 text-white'
                             : 'bg-slate-700/50 border-slate-600 text-white hover:bg-slate-600/50'
                         }`}
                       >
-                        <div className={`font-medium ${font.size}`}>{font.label}</div>
+                        <div className={`font-medium text-xs sm:text-sm ${font.size}`}>{font.label}</div>
                       </button>
                     ))}
                   </div>
@@ -449,14 +449,14 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between p-6 border-t border-slate-700">
-          <div className="text-slate-400 text-sm">
+        <div className="flex flex-col sm:flex-row items-center justify-between p-4 sm:p-6 border-t border-slate-700 space-y-2 sm:space-y-0">
+          <div className="text-slate-400 text-xs sm:text-sm text-center sm:text-left">
             {saving ? 'Saving changes...' : 'Changes are saved automatically'}
           </div>
           <div className="flex space-x-3">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-slate-300 hover:text-white transition-colors"
+              className="px-3 sm:px-4 py-2 text-slate-300 hover:text-white transition-colors text-sm sm:text-base"
             >
               Close
             </button>

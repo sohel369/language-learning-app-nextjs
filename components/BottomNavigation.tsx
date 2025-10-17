@@ -4,10 +4,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, BookOpen, Target, Bot, User } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function BottomNavigation() {
   const pathname = usePathname();
   const t = useTranslation();
+  const { isRTL } = useLanguage();
 
   const navItems = [
     { href: '/', icon: Home, label: t('home') },
@@ -18,8 +20,8 @@ export default function BottomNavigation() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-sm border-t border-gray-700 z-50 safe-area-pb">
-      <div className="flex items-center justify-around py-1 sm:py-2">
+    <nav className="bg-gray-900/95 backdrop-blur-sm border-t border-gray-700 z-50 safe-area-pb" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className={`flex items-center justify-around py-1 sm:py-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
@@ -36,7 +38,7 @@ export default function BottomNavigation() {
               title={item.label}
             >
               <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
-              <span className="text-xs font-medium truncate max-w-full px-1 hidden sm:block">
+              <span className={`text-xs font-medium truncate max-w-full px-1 hidden sm:block ${isRTL ? 'text-right' : 'text-left'}`}>
                 {item.label}
               </span>
             </Link>

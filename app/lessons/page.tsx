@@ -70,17 +70,17 @@ export default function LessonsPage() {
     <ProtectedRoute>
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <Link href="/" className="flex items-center space-x-3 text-white hover:text-purple-300 transition-colors">
-            <ArrowLeft className="w-6 h-6" />
-            <span className="text-lg font-medium">Back to Home</span>
+      <div className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
+          <Link href="/" className="flex items-center space-x-2 sm:space-x-3 text-white hover:text-purple-300 transition-colors">
+            <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+            <span className="text-base sm:text-lg font-medium">Back to Home</span>
           </Link>
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3 sm:space-x-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-white">{currentLanguage.flag}</div>
-              <div className="text-sm text-gray-300">{currentLanguage.native}</div>
+              <div className="text-xl sm:text-2xl font-bold text-white">{currentLanguage.flag}</div>
+              <div className="text-xs sm:text-sm text-gray-300">{currentLanguage.native}</div>
             </div>
           </div>
         </div>

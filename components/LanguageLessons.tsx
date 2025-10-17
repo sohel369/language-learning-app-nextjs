@@ -490,20 +490,20 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900" dir={isRTL ? 'rtl' : 'ltr'}>
-      <div className="max-w-6xl mx-auto p-6">
+      <div className="max-w-6xl mx-auto p-4 sm:p-6">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-4">Language Lessons</h1>
-          <p className="text-white/70 text-lg">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-4">Language Lessons</h1>
+          <p className="text-white/70 text-base sm:text-lg">
             Learn with lessons tailored to your selected languages
           </p>
         </div>
 
         {/* Language Tabs */}
         {userLearningLanguages.length > 1 && (
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-white mb-4">Select Language to Learn</h3>
-            <div className="flex flex-wrap gap-3">
+          <div className="mb-6 sm:mb-8">
+            <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">Select Language to Learn</h3>
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               {userLearningLanguages.map((lang) => {
                 const languageLessons = allLessons[lang] || [];
                 const completedCount = languageLessons.filter(l => l.completed).length;
@@ -513,16 +513,16 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
                   <button
                     key={lang}
                     onClick={() => handleLanguageSwitch(lang)}
-                    className={`px-6 py-3 rounded-xl border-2 transition-all duration-200 flex items-center space-x-3 ${
+                    className={`px-3 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl border-2 transition-all duration-200 flex items-center space-x-2 sm:space-x-3 ${
                       selectedLanguage === lang
                         ? 'bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-500/25'
                         : 'bg-white/10 border-white/20 text-white/70 hover:bg-white/20 hover:border-white/30'
                     }`}
                   >
-                    <span className="text-2xl">{getLanguageFlag(lang)}</span>
+                    <span className="text-lg sm:text-2xl">{getLanguageFlag(lang)}</span>
                     <div className="text-left">
-                      <div className="font-semibold">{getLanguageName(lang)}</div>
-                      <div className="text-sm opacity-75">
+                      <div className="font-semibold text-sm sm:text-base">{getLanguageName(lang)}</div>
+                      <div className="text-xs sm:text-sm opacity-75">
                         {completedCount}/{totalCount} completed
                       </div>
                     </div>
@@ -534,75 +534,75 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
         )}
 
         {/* Current Language Header */}
-        <div className="mb-6">
-          <div className="flex items-center space-x-3 mb-4">
-            <span className="text-3xl">{getLanguageFlag(selectedLanguage)}</span>
+        <div className="mb-4 sm:mb-6">
+          <div className="flex items-center space-x-2 sm:space-x-3 mb-3 sm:mb-4">
+            <span className="text-2xl sm:text-3xl">{getLanguageFlag(selectedLanguage)}</span>
             <div>
-              <h2 className="text-2xl font-bold text-white">
+              <h2 className="text-xl sm:text-2xl font-bold text-white">
                 {getLanguageName(selectedLanguage)} Lessons
               </h2>
-              <p className="text-white/70 text-sm">
+              <p className="text-white/70 text-xs sm:text-sm">
                 Learning {getLanguageName(selectedLanguage)} • Audio in {getLanguageName(selectedLanguage)}
               </p>
             </div>
           </div>
-          <div className="flex items-center space-x-6 text-white/70">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-6 text-white/70">
             <div className="flex items-center space-x-2">
               <BookOpen className="w-4 h-4" />
-              <span>{lessons.length} lessons available</span>
+              <span className="text-sm">{lessons.length} lessons available</span>
             </div>
             <div className="flex items-center space-x-2">
               <CheckCircle className="w-4 h-4" />
-              <span>{lessons.filter(l => l.completed).length} completed</span>
+              <span className="text-sm">{lessons.filter(l => l.completed).length} completed</span>
             </div>
             <div className="flex items-center space-x-2">
               <Headphones className="w-4 h-4" />
-              <span>Audio in {getLanguageName(selectedLanguage)}</span>
+              <span className="text-sm">Audio in {getLanguageName(selectedLanguage)}</span>
             </div>
           </div>
         </div>
 
         {/* Lessons Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {lessons.map((lesson) => (
             <div
               key={lesson.id}
-              className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-200"
+              className="bg-white/10 backdrop-blur-lg rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/20 hover:bg-white/20 transition-all duration-200"
             >
               {/* Lesson Header */}
-              <div className="flex items-start justify-between mb-4">
+              <div className="flex items-start justify-between mb-3 sm:mb-4">
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white mb-2">{lesson.title}</h3>
-                  <p className="text-white/70 text-sm mb-3">{lesson.description}</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">{lesson.title}</h3>
+                  <p className="text-white/70 text-xs sm:text-sm mb-2 sm:mb-3">{lesson.description}</p>
                 </div>
                 {lesson.completed && (
-                  <CheckCircle className="w-6 h-6 text-green-400 flex-shrink-0" />
+                  <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-400 flex-shrink-0" />
                 )}
               </div>
 
               {/* Lesson Meta */}
-              <div className="flex items-center space-x-4 mb-4">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
                 <div className={`px-2 py-1 rounded-full text-xs font-medium border ${getLevelColor(lesson.level)}`}>
                   {lesson.level}
                 </div>
                 <div className="flex items-center space-x-1 text-white/70">
-                  <Clock className="w-4 h-4" />
-                  <span className="text-sm">{lesson.duration} min</span>
+                  <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="text-xs sm:text-sm">{lesson.duration} min</span>
                 </div>
                 <div className="flex items-center space-x-1 text-white/70">
-                  <Star className="w-4 h-4" />
-                  <span className="text-sm">{lesson.xpReward} XP</span>
+                  <Star className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="text-xs sm:text-sm">{lesson.xpReward} XP</span>
                 </div>
               </div>
 
               {/* Difficulty Indicator */}
-              <div className="flex items-center space-x-2 mb-4">
-                <span className="text-sm text-white/70">Difficulty:</span>
+              <div className="flex items-center space-x-2 mb-3 sm:mb-4">
+                <span className="text-xs sm:text-sm text-white/70">Difficulty:</span>
                 <div className="flex space-x-1">
                   {[1, 2, 3, 4, 5].map((level) => (
                     <div
                       key={level}
-                      className={`w-2 h-2 rounded-full ${
+                      className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${
                         level <= lesson.difficulty
                           ? getDifficultyColor(lesson.difficulty)
                           : 'bg-gray-600'
@@ -614,14 +614,14 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
 
               {/* Progress Bar */}
               {lesson.progress > 0 && (
-                <div className="mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-white/70">Progress</span>
-                    <span className="text-sm text-white/70">{lesson.progress}%</span>
+                <div className="mb-3 sm:mb-4">
+                  <div className="flex items-center justify-between mb-1 sm:mb-2">
+                    <span className="text-xs sm:text-sm text-white/70">Progress</span>
+                    <span className="text-xs sm:text-sm text-white/70">{lesson.progress}%</span>
                   </div>
-                  <div className="w-full bg-gray-700 rounded-full h-2">
+                  <div className="w-full bg-gray-700 rounded-full h-1.5 sm:h-2">
                     <div
-                      className="bg-purple-600 h-2 rounded-full transition-all duration-300"
+                      className="bg-purple-600 h-1.5 sm:h-2 rounded-full transition-all duration-300"
                       style={{ width: `${lesson.progress}%` }}
                     />
                   </div>
@@ -630,12 +630,12 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
 
               {/* Audio Player */}
               {lesson.audioUrl && (
-                <div className="mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-white/70">Audio Preview</span>
+                <div className="mb-3 sm:mb-4">
+                  <div className="flex items-center justify-between mb-1 sm:mb-2">
+                    <span className="text-xs sm:text-sm text-white/70">Audio Preview</span>
                     <div className="flex items-center space-x-1 text-xs text-white/60">
                       <Headphones className="w-3 h-3" />
-                      <span>in {getLanguageName(lesson.language)}</span>
+                      <span className="hidden sm:inline">in {getLanguageName(lesson.language)}</span>
                     </div>
                   </div>
                   <div className="text-xs text-white/50 mb-2">
@@ -647,14 +647,14 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
                         ? handleStopAudio() 
                         : handlePlayAudio(lesson.audioUrl!, lesson.id)
                     }
-                    className="w-full flex items-center justify-center space-x-2 p-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                    className="w-full flex items-center justify-center space-x-2 p-2 sm:p-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
                   >
                     {(isPlaying === lesson.id || isPlaying === 'tts') ? (
-                      <Pause className="w-5 h-5" />
+                      <Pause className="w-4 h-4 sm:w-5 sm:h-5" />
                     ) : (
-                      <Play className="w-5 h-5" />
+                      <Play className="w-4 h-4 sm:w-5 sm:h-5" />
                     )}
-                    <span>
+                    <span className="text-sm sm:text-base">
                       {(isPlaying === lesson.id || isPlaying === 'tts') 
                         ? 'Pause Audio' 
                         : `Play Audio (${getLanguageName(lesson.language)})`
@@ -665,31 +665,31 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
               )}
 
               {/* Exercises Preview */}
-              <div className="mb-4">
-                <h4 className="text-sm font-semibold text-white mb-2">Exercises:</h4>
-                <div className="space-y-2">
+              <div className="mb-3 sm:mb-4">
+                <h4 className="text-xs sm:text-sm font-semibold text-white mb-1 sm:mb-2">Exercises:</h4>
+                <div className="space-y-1 sm:space-y-2">
                   {lesson.exercises.slice(0, 3).map((exercise) => (
                     <div
                       key={exercise.id}
-                      className="flex items-center justify-between text-sm"
+                      className="flex items-center justify-between text-xs sm:text-sm"
                     >
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1 sm:space-x-2">
                         {getExerciseIcon(exercise.type)}
                         <span className={`${exercise.completed ? 'text-green-400' : 'text-white/70'}`}>
                           {exercise.title}
                         </span>
-                        {exercise.completed && <CheckCircle className="w-4 h-4 text-green-400" />}
+                        {exercise.completed && <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />}
                       </div>
                       {exercise.audioUrl && (
                         <div className="flex items-center space-x-1 text-xs text-white/60">
                           <Headphones className="w-3 h-3" />
-                          <span>{getLanguageName(lesson.language)}</span>
+                          <span className="hidden sm:inline">{getLanguageName(lesson.language)}</span>
                         </div>
                       )}
                     </div>
                   ))}
                   {lesson.exercises.length > 3 && (
-                    <div className="text-sm text-white/50">
+                    <div className="text-xs sm:text-sm text-white/50">
                       +{lesson.exercises.length - 3} more exercises
                     </div>
                   )}
@@ -699,10 +699,10 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
               {/* Action Button */}
               <Link
                 href={`/lessons/${lesson.id}`}
-                className="w-full flex items-center justify-center space-x-2 p-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg transition-all duration-200"
+                className="w-full flex items-center justify-center space-x-2 p-2 sm:p-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg transition-all duration-200"
               >
-                <span>Start Lesson</span>
-                <ArrowRight className="w-4 h-4" />
+                <span className="text-sm sm:text-base">Start Lesson</span>
+                <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
               </Link>
             </div>
           ))}

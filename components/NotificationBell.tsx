@@ -65,10 +65,13 @@ export default function NotificationBell() {
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative flex-shrink-0" ref={dropdownRef}>
       {/* Notification Bell Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          console.log('Notification bell clicked, isOpen:', isOpen);
+          setIsOpen(!isOpen);
+        }}
         className="relative p-2 text-white/70 hover:text-white transition-colors"
       >
         <Bell className="w-6 h-6" />
@@ -83,12 +86,27 @@ export default function NotificationBell() {
 
       {/* Notification Dropdown */}
       {isOpen && (
-        <div className="absolute right-0 top-12 w-80 bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 shadow-xl z-50">
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 z-[9998]"
+            onClick={() => setIsOpen(false)}
+          />
+          
+          {/* Notification Dropdown */}
+          <div className="fixed top-16 right-2 sm:top-16 sm:right-4 w-72 sm:w-80 md:w-96 lg:w-[28rem] xl:w-[32rem] max-w-[calc(100vw-1rem)] sm:max-w-[calc(100vw-2rem)] md:max-w-[calc(100vw-3rem)] lg:max-w-[calc(100vw-4rem)] bg-white/10 backdrop-blur-lg rounded-lg sm:rounded-xl border border-white/20 shadow-xl z-[9999]" style={{ minWidth: '280px', maxHeight: '80vh', overflowY: 'auto' }}>
           {/* Header */}
-          <div className="p-4 border-b border-white/20">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold text-white">Notifications</h3>
+          <div className="p-3 sm:p-4 border-b border-white/20">
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
               <div className="flex items-center space-x-2">
+                <h3 className="text-base sm:text-lg font-semibold text-white">Notifications</h3>
+                {unreadCount > 0 && (
+                  <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                    {unreadCount}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center space-x-1 sm:space-x-2">
                 <button
                   onClick={() => setFilter(filter === 'all' ? 'unread' : 'all')}
                   className="text-xs px-2 py-1 bg-white/20 rounded text-white hover:bg-white/30 transition-colors"
@@ -99,73 +117,70 @@ export default function NotificationBell() {
                   onClick={markAllAsRead}
                   className="text-xs px-2 py-1 bg-blue-600 rounded text-white hover:bg-blue-700 transition-colors"
                 >
-                  Mark all read
+                  <span className="hidden sm:inline">Mark all read</span>
+                  <span className="sm:hidden">Mark all</span>
                 </button>
               </div>
             </div>
             
-            {unreadCount > 0 && (
-              <div className="text-sm text-white/70">
-                {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
-              </div>
-            )}
           </div>
 
           {/* Notifications List */}
-          <div className="max-h-96 overflow-y-auto">
+          <div className="max-h-96 sm:max-h-[28rem] md:max-h-[32rem] overflow-y-auto">
             {filteredNotifications.length === 0 ? (
-              <div className="p-6 text-center text-white/70">
-                <Bell className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>No notifications yet</p>
+              <div className="p-4 sm:p-6 text-center text-white/70">
+                <Bell className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-2 sm:mb-3 opacity-50" />
+                <p className="text-sm sm:text-base">No notifications yet</p>
               </div>
             ) : (
               filteredNotifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-4 border-b border-white/10 hover:bg-white/5 transition-colors ${
+                  className={`p-3 sm:p-4 border-b border-white/10 hover:bg-white/5 transition-colors ${
                     !notification.read ? 'bg-blue-500/10' : ''
                   }`}
                 >
-                  <div className="flex items-start space-x-3">
-                    <div className="text-2xl">
+                  <div className="flex items-start space-x-2 sm:space-x-3">
+                    <div className="text-lg sm:text-xl md:text-2xl flex-shrink-0 mt-0.5">
                       {notification.icon || getNotificationIcon(notification.type)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className={`text-sm font-medium ${getNotificationColor(notification.type)}`}>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h4 className={`text-sm sm:text-base font-medium ${getNotificationColor(notification.type)} leading-tight`}>
                             {notification.title}
                           </h4>
-                          <p className="text-xs text-white/70 mt-1 line-clamp-2">
+                          <p className="text-xs sm:text-sm text-white/70 mt-1 leading-relaxed">
                             {notification.message}
                           </p>
-                          <div className="flex items-center justify-between mt-2">
+                          <div className="flex items-center justify-between mt-2 flex-wrap gap-1">
                             <span className="text-xs text-white/50">
                               {formatTime(notification.timestamp)}
                             </span>
                             {notification.priority === 'high' && (
-                              <span className="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded">
-                                High Priority
+                              <span className="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded-full">
+                                <span className="hidden sm:inline">High Priority</span>
+                                <span className="sm:hidden">High</span>
                               </span>
                             )}
                           </div>
                         </div>
-                        <div className="flex items-center space-x-1 ml-2">
+                        <div className="flex items-center space-x-1 flex-shrink-0">
                           {!notification.read && (
                             <button
                               onClick={() => markAsRead(notification.id)}
-                              className="p-1 text-white/50 hover:text-green-400 transition-colors"
+                              className="p-1.5 text-white/50 hover:text-green-400 transition-colors rounded-full hover:bg-green-400/10"
                               title="Mark as read"
                             >
-                              <Check className="w-4 h-4" />
+                              <Check className="w-3 h-3 sm:w-4 sm:h-4" />
                             </button>
                           )}
                           <button
                             onClick={() => removeNotification(notification.id)}
-                            className="p-1 text-white/50 hover:text-red-400 transition-colors"
+                            className="p-1.5 text-white/50 hover:text-red-400 transition-colors rounded-full hover:bg-red-400/10"
                             title="Remove"
                           >
-                            <X className="w-4 h-4" />
+                            <X className="w-3 h-3 sm:w-4 sm:h-4" />
                           </button>
                         </div>
                       </div>
@@ -178,7 +193,7 @@ export default function NotificationBell() {
 
           {/* Footer */}
           {notifications.length > 0 && (
-            <div className="p-4 border-t border-white/20">
+            <div className="p-3 sm:p-4 border-t border-white/20">
               <div className="flex items-center justify-between">
                 <button
                   onClick={clearAllNotifications}
@@ -195,6 +210,7 @@ export default function NotificationBell() {
             </div>
           )}
         </div>
+        </>
       )}
     </div>
   );

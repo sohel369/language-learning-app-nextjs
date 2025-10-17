@@ -119,7 +119,7 @@ export default function DashboardPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col overflow-x-hidden relative" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Responsive Header */}
         <header className="flex-shrink-0 p-3 sm:p-4 lg:p-6 border-b border-white/10">
           <div className="max-w-7xl mx-auto">
@@ -136,6 +136,16 @@ export default function DashboardPage() {
               </div>
               
               <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2 sm:space-x-3' : 'space-x-2 sm:space-x-3'}`}>
+                <button
+                  onClick={() => showNotification(
+                    'Test Notification 🔔',
+                    'This is a test notification to demonstrate the popup functionality.',
+                    'info'
+                  )}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded-lg text-xs transition-colors"
+                >
+                  Test
+                </button>
                 <NotificationBell />
                 <button
                   onClick={() => setShowSettingsModal(true)}
@@ -235,7 +245,7 @@ export default function DashboardPage() {
         </header>
 
         {/* Main Content - Scrollable */}
-        <main className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 pb-20">
+        <main className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 pb-16 sm:pb-20">
           <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
             {/* Welcome Section */}
             <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 relative overflow-hidden">

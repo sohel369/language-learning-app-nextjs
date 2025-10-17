@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Clock, Target, Star, Trophy, TrendingUp, Calendar, Award } from 'lucide-react';
 import { getQuizHistory, getQuizStats } from '../lib/quizHistory';
 import { QuizHistory } from '../data/languageData';
@@ -8,16 +8,20 @@ interface QuizHistoryProps {
   limit?: number;
 }
 
-const QuizHistoryComponent: React.FC<QuizHistoryProps> = ({ userId, limit = 10 }) => {
+const QuizHistoryComponent: React.FC<QuizHistoryProps> = React.memo(({ userId, limit = 10 }) => {
   const [quizHistory, setQuizHistory] = useState<QuizHistory[]>([]);
   const [quizStats, setQuizStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadQuizData();
-  }, [userId]);
+    if (userId) {
+      loadQuizData();
+    }
+  }, [userId, limit]);
 
   const loadQuizData = async () => {
+    if (!userId) return;
+    
     try {
       setLoading(true);
       const [history, stats] = await Promise.all([
@@ -49,6 +53,9 @@ const QuizHistoryComponent: React.FC<QuizHistoryProps> = ({ userId, limit = 10 }
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
+
+  const memoizedQuizHistory = useMemo(() => quizHistory, [quizHistory]);
+  const memoizedQuizStats = useMemo(() => quizStats, [quizStats]);
 
   const getScoreColor = (score: number, total: number) => {
     const percentage = (score / total) * 100;
@@ -217,6 +224,8 @@ const QuizHistoryComponent: React.FC<QuizHistoryProps> = ({ userId, limit = 10 }
       </div>
     </div>
   );
-};
+});
+
+QuizHistoryComponent.displayName = 'QuizHistoryComponent';
 
 export default QuizHistoryComponent;

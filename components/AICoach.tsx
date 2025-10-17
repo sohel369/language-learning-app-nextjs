@@ -302,35 +302,35 @@ export default function AICoach({ language, isRTL = false }: AICoachProps) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6" dir={isRTL ? 'rtl' : 'ltr'}>
-      <div className="bg-gray-800/50 rounded-xl p-6 mb-6">
+    <div className="max-w-4xl mx-auto p-2 sm:p-4 lg:p-6" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="bg-gray-800/50 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
         <div className="flex items-center space-x-3 mb-4">
-          <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
-            <Bot className="w-6 h-6 text-white" />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-600 rounded-full flex items-center justify-center">
+            <Bot className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white">AI Language Coach</h2>
-            <p className="text-sm text-gray-400">Practice {language} with personalized feedback</p>
+            <h2 className="text-lg sm:text-xl font-bold text-white">AI Language Coach</h2>
+            <p className="text-xs sm:text-sm text-gray-400">Practice {language} with personalized feedback</p>
           </div>
         </div>
       </div>
 
       {/* Messages */}
-      <div className="bg-gray-800/50 rounded-xl p-6 mb-6 h-96 overflow-y-auto">
-        <div className="space-y-4">
+      <div className="bg-gray-800/50 rounded-xl p-3 sm:p-6 mb-4 sm:mb-6 h-80 sm:h-96 overflow-y-auto">
+        <div className="space-y-3 sm:space-y-4">
           {messages.map((message) => (
             <div
               key={message.id}
               className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg ${
+                className={`max-w-[85%] sm:max-w-xs lg:max-w-md px-3 sm:px-4 py-2 sm:py-3 rounded-lg ${
                   message.type === 'user'
                     ? 'bg-purple-600 text-white'
                     : 'bg-gray-700 text-white'
                 }`}
               >
-                <p className="text-sm">{message.content}</p>
+                <p className="text-xs sm:text-sm break-words">{message.content}</p>
                 <div className="flex items-center justify-between mt-2">
                   <p className="text-xs opacity-70">
                     {message.timestamp.toLocaleTimeString()}
@@ -411,8 +411,8 @@ export default function AICoach({ language, isRTL = false }: AICoachProps) {
       </div>
 
       {/* Input */}
-      <div className="bg-gray-800/50 rounded-xl p-4">
-        <div className="flex items-center space-x-3">
+      <div className="bg-gray-800/50 rounded-xl p-3 sm:p-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
           <div className="flex-1">
             <input
               type="text"
@@ -420,49 +420,54 @@ export default function AICoach({ language, isRTL = false }: AICoachProps) {
               onChange={(e) => setInputText(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
               placeholder={`Type your message in ${language}...`}
-              className="w-full bg-gray-700 text-white px-4 py-3 rounded-lg border border-gray-600 focus:border-purple-500 focus:outline-none"
+              className="w-full bg-gray-700 text-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-gray-600 focus:border-purple-500 focus:outline-none text-sm sm:text-base"
               disabled={isProcessing}
             />
           </div>
-          <button
-            onClick={handleVoiceInput}
-            disabled={isListening || isProcessing}
-            className={`p-3 rounded-lg transition-colors ${
-              isListening
-                ? 'bg-red-600 hover:bg-red-700'
-                : 'bg-blue-600 hover:bg-blue-700'
-            } text-white`}
-          >
-            {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-          </button>
-          {inputText.trim() && soundEnabled && (
+          <div className="flex items-center space-x-2 sm:space-x-3">
             <button
-              onClick={() => handleReadBackUserText('input', inputText)}
-              disabled={isProcessing}
-              className="p-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
-              title="Hear pronunciation"
+              onClick={handleVoiceInput}
+              disabled={isListening || isProcessing}
+              className={`p-2 sm:p-3 rounded-lg transition-colors ${
+                isListening
+                  ? 'bg-red-600 hover:bg-red-700'
+                  : 'bg-blue-600 hover:bg-blue-700'
+              } text-white`}
+              title={isListening ? 'Stop listening' : 'Start voice input'}
             >
-              <Volume2 className="w-5 h-5" />
+              {isListening ? <MicOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Mic className="w-4 h-4 sm:w-5 sm:h-5" />}
             </button>
-          )}
-          <button
-            onClick={() => handleSendMessage()}
-            disabled={!inputText.trim() || isProcessing}
-            className="p-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
-          >
-            <Send className="w-5 h-5" />
-          </button>
+            {inputText.trim() && soundEnabled && (
+              <button
+                onClick={() => handleReadBackUserText('input', inputText)}
+                disabled={isProcessing}
+                className="p-2 sm:p-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+                title="Hear pronunciation"
+              >
+                <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            )}
+            <button
+              onClick={() => handleSendMessage()}
+              disabled={!inputText.trim() || isProcessing}
+              className="p-2 sm:p-3 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+              title="Send message"
+            >
+              <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+          </div>
         </div>
         
-        <div className="flex items-center justify-between mt-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 space-y-2 sm:space-y-0">
           <div className="text-xs text-gray-400">
             {isListening ? (
               'Listening...'
             ) : (
               <div>
-                <div>Click microphone to speak</div>
+                <div className="hidden sm:block">Click microphone to speak</div>
+                <div className="sm:hidden">Tap mic to speak</div>
                 {ttsEnabled && (
-                  <div className="text-green-400 mt-1">
+                  <div className="text-green-400 mt-1 text-xs">
                     🔊 AI responses read aloud automatically
                   </div>
                 )}
@@ -494,7 +499,7 @@ export default function AICoach({ language, isRTL = false }: AICoachProps) {
               </button>
             )}
             
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-gray-400 hidden sm:inline">
               {ttsEnabled ? 'TTS enabled' : 'TTS disabled'}
             </span>
           </div>

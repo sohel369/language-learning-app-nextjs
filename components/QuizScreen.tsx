@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo, memo } from 'react';
-import { Volume2, Check, X, Play, PartyPopper } from 'lucide-react';
+import { Volume2, Check, X, Play, PartyPopper, RotateCcw } from 'lucide-react';
 import { getQuizQuestions, getLanguageInfo, getTranslation } from '../lib/quizDataLoader';
 import QuizResults from './QuizResults';
 import Confetti from './Confetti';
@@ -10,6 +10,7 @@ interface QuizScreenProps {
   onFinish?: (score: number, total: number) => void;
   onQuestionChange?: (question: number, total: number) => void;
   onQuizStart?: () => void;
+  onResetQuiz?: () => void;
   quizType?: string;
 }
 
@@ -19,6 +20,7 @@ const QuizScreen: React.FC<QuizScreenProps> = memo(({
   onFinish, 
   onQuestionChange, 
   onQuizStart,
+  onResetQuiz,
   quizType = 'enhanced'
 }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -442,12 +444,24 @@ const QuizScreen: React.FC<QuizScreenProps> = memo(({
       </div>
 
       {showResult && (
-        <button
-          onClick={nextQuestion}
-          className="mt-4 px-6 py-3 bg-blue-600 rounded-xl text-white font-medium hover:bg-blue-500"
-        >
-          {currentQuestion < questions.length - 1 ? t('nextQuestion') : t('finishQuiz')}
-        </button>
+        <div className="mt-4 flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={nextQuestion}
+            className="flex-1 px-6 py-3 bg-blue-600 rounded-xl text-white font-medium hover:bg-blue-500 transition-colors"
+          >
+            {currentQuestion < questions.length - 1 ? t('nextQuestion') : t('finishQuiz')}
+          </button>
+          {onResetQuiz && (
+            <button
+              onClick={onResetQuiz}
+              className="flex items-center justify-center gap-2 px-4 py-3 bg-red-600 rounded-xl text-white font-medium hover:bg-red-500 transition-colors"
+              title="Reset Quiz"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span className="hidden sm:inline">Reset</span>
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
