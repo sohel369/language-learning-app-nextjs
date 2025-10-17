@@ -71,6 +71,12 @@ export default function AIFeaturesPage() {
             onPronunciationComplete={(score) => {
               console.log('Pronunciation score:', score);
             }}
+            onComplete={(result) => {
+              console.log('Pronunciation result:', result);
+            }}
+            onProgress={(progress) => {
+              console.log('Pronunciation progress:', progress);
+            }}
           />
         );
       case 'adaptive':

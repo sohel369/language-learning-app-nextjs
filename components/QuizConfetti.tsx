@@ -31,7 +31,7 @@ const QuizConfetti: React.FC<ConfettiProps> = ({
   onComplete 
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | undefined>(undefined);
   const confettiRef = useRef<ConfettiPiece[]>([]);
   const startTimeRef = useRef<number>(0);
 

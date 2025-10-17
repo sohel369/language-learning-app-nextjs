@@ -7,6 +7,8 @@ interface AIPronunciationCoachProps {
   targetWord: string;
   targetLanguage: string;
   onPronunciationComplete?: (score: number) => void;
+  onComplete?: (result: any) => void;
+  onProgress?: (progress: any) => void;
   className?: string;
 }
 
@@ -14,6 +16,8 @@ const AIPronunciationCoach: React.FC<AIPronunciationCoachProps> = ({
   targetWord,
   targetLanguage,
   onPronunciationComplete,
+  onComplete,
+  onProgress,
   className = ''
 }) => {
   const [isRecording, setIsRecording] = useState(false);
@@ -66,9 +70,28 @@ const AIPronunciationCoach: React.FC<AIPronunciationCoachProps> = ({
       setIsRecording(true);
       recordingStartTimeRef.current = Date.now();
       
+      // Notify progress - recording started
+      if (onProgress) {
+        onProgress({
+          phase: 'recording',
+          message: 'Recording started...',
+          progress: 0
+        });
+      }
+      
       // Start timer
       timerRef.current = setInterval(() => {
-        setRecordingTime(Math.floor((Date.now() - recordingStartTimeRef.current) / 1000));
+        const elapsed = Date.now() - recordingStartTimeRef.current;
+        setRecordingTime(Math.floor(elapsed / 1000));
+        
+        // Update progress during recording
+        if (onProgress) {
+          onProgress({
+            phase: 'recording',
+            message: `Recording... ${Math.floor(elapsed / 1000)}s`,
+            progress: Math.min((elapsed / 1000) / 5, 1) * 0.5 // 50% for recording phase
+          });
+        }
       }, 100);
       
     } catch (err) {
@@ -95,15 +118,43 @@ const AIPronunciationCoach: React.FC<AIPronunciationCoachProps> = ({
     setIsProcessing(true);
     
     try {
+      // Notify progress - processing started
+      if (onProgress) {
+        onProgress({
+          phase: 'processing',
+          message: 'Analyzing pronunciation...',
+          progress: 0.5
+        });
+      }
+      
       // Simulate AI processing (in a real app, this would call an AI service)
       await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Notify progress - processing complete
+      if (onProgress) {
+        onProgress({
+          phase: 'processing',
+          message: 'Analysis complete!',
+          progress: 1.0
+        });
+      }
       
       // Mock pronunciation analysis
       const mockScore = Math.floor(Math.random() * 40) + 60; // 60-100 range
       setPronunciationScore(mockScore);
       
+      // Call completion callbacks
       if (onPronunciationComplete) {
         onPronunciationComplete(mockScore);
+      }
+      
+      if (onComplete) {
+        onComplete({
+          score: mockScore,
+          word: targetWord,
+          language: targetLanguage,
+          timestamp: new Date().toISOString()
+        });
       }
       
     } catch (err) {
