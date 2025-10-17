@@ -68,11 +68,8 @@ export default function AIFeaturesPage() {
           <AIPronunciationCoach
             targetWord={targetWord}
             targetLanguage={targetLanguage}
-            onComplete={(result) => {
-              console.log('Pronunciation result:', result);
-            }}
-            onProgress={(progress) => {
-              console.log('Pronunciation progress:', progress);
+            onPronunciationComplete={(score) => {
+              console.log('Pronunciation score:', score);
             }}
           />
         );
