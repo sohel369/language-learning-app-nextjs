@@ -737,6 +737,270 @@ export const QUIZ_QUESTIONS = {
       correct: 1,
       difficulty: "beginner",
       category: "arabic_language"
+    },
+    
+    // Additional Basic Quiz Questions - English Learning (Unique from Enhanced)
+    {
+      id: 71,
+      type: "multiple_choice",
+      question: "What is the English word for 'أكل'?",
+      options: ["eat", "drink", "sleep", "walk"],
+      correct: 0,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 72,
+      type: "true_false",
+      question: "The English word 'car' means 'سيارة' in Arabic.",
+      correct: true,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 73,
+      type: "short_answer",
+      question: "What is the English word for 'سماء'?",
+      answer: "sky",
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 74,
+      type: "multiple_choice",
+      question: "What is the English word for 'شمس'?",
+      options: ["moon", "sun", "star", "cloud"],
+      correct: 1,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 75,
+      type: "true_false",
+      question: "The English word 'tree' means 'شجرة' in Arabic.",
+      correct: true,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 76,
+      type: "fill_blank",
+      question: "Complete: I see a _____ (شجرة)",
+      options: ["tree", "car", "house", "book"],
+      blank: "tree",
+      correct: 0,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 77,
+      type: "multiple_choice",
+      question: "What is the English word for 'قمر'?",
+      options: ["sun", "moon", "star", "planet"],
+      correct: 1,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 78,
+      type: "short_answer",
+      question: "What is the English word for 'أرض'?",
+      answer: "earth",
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 79,
+      type: "true_false",
+      question: "The English word 'flower' means 'زهرة' in Arabic.",
+      correct: true,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 80,
+      type: "multiple_choice",
+      question: "What is the English word for 'نهر'?",
+      options: ["mountain", "river", "lake", "ocean"],
+      correct: 1,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    
+    // Additional Basic Quiz Questions - Arabic Learning (Unique from Enhanced)
+    {
+      id: 81,
+      type: "multiple_choice",
+      question: "ما هي الكلمة العربية لكلمة 'eat'؟",
+      options: ["أكل", "شرب", "نام", "مشى"],
+      correct: 0,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 82,
+      type: "true_false",
+      question: "كلمة 'car' الإنجليزية تعني 'سيارة' بالعربية.",
+      correct: true,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 83,
+      type: "short_answer",
+      question: "ما هي الكلمة العربية لكلمة 'sky'؟",
+      answer: "سماء",
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 84,
+      type: "multiple_choice",
+      question: "ما هي الكلمة العربية لكلمة 'sun'؟",
+      options: ["قمر", "شمس", "نجمة", "سحابة"],
+      correct: 1,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 85,
+      type: "true_false",
+      question: "كلمة 'tree' الإنجليزية تعني 'شجرة' بالعربية.",
+      correct: true,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 86,
+      type: "fill_blank",
+      question: "أكمل: أنا أرى _____ (tree)",
+      options: ["شجرة", "سيارة", "بيت", "كتاب"],
+      blank: "شجرة",
+      correct: 0,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 87,
+      type: "multiple_choice",
+      question: "ما هي الكلمة العربية لكلمة 'moon'؟",
+      options: ["شمس", "قمر", "نجمة", "كوكب"],
+      correct: 1,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 88,
+      type: "short_answer",
+      question: "ما هي الكلمة العربية لكلمة 'earth'؟",
+      answer: "أرض",
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 89,
+      type: "true_false",
+      question: "كلمة 'flower' الإنجليزية تعني 'زهرة' بالعربية.",
+      correct: true,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 90,
+      type: "multiple_choice",
+      question: "ما هي الكلمة العربية لكلمة 'river'؟",
+      options: ["جبل", "نهر", "بحيرة", "محيط"],
+      correct: 1,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    
+    // More Basic Quiz Questions - Daily Life (English)
+    {
+      id: 91,
+      type: "multiple_choice",
+      question: "What is the English word for 'ملابس'?",
+      options: ["clothes", "shoes", "hat", "bag"],
+      correct: 0,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 92,
+      type: "true_false",
+      question: "The English word 'shoes' means 'أحذية' in Arabic.",
+      correct: true,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 93,
+      type: "short_answer",
+      question: "What is the English word for 'سرير'?",
+      answer: "bed",
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 94,
+      type: "multiple_choice",
+      question: "What is the English word for 'طاولة'?",
+      options: ["chair", "table", "desk", "shelf"],
+      correct: 1,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 95,
+      type: "true_false",
+      question: "The English word 'chair' means 'كرسي' in Arabic.",
+      correct: true,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    
+    // More Basic Quiz Questions - Daily Life (Arabic)
+    {
+      id: 96,
+      type: "multiple_choice",
+      question: "ما هي الكلمة العربية لكلمة 'clothes'؟",
+      options: ["ملابس", "أحذية", "قبعة", "حقيبة"],
+      correct: 0,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 97,
+      type: "true_false",
+      question: "كلمة 'shoes' الإنجليزية تعني 'أحذية' بالعربية.",
+      correct: true,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 98,
+      type: "short_answer",
+      question: "ما هي الكلمة العربية لكلمة 'bed'؟",
+      answer: "سرير",
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 99,
+      type: "multiple_choice",
+      question: "ما هي الكلمة العربية لكلمة 'table'؟",
+      options: ["كرسي", "طاولة", "مكتب", "رف"],
+      correct: 1,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 100,
+      type: "true_false",
+      question: "كلمة 'chair' الإنجليزية تعني 'كرسي' بالعربية.",
+      correct: true,
+      difficulty: "beginner",
+      category: "arabic_language"
     }
   ],
   arabic: [
@@ -1358,6 +1622,270 @@ export const QUIZ_QUESTIONS = {
       question: "ما هي الكلمة العربية لكلمة 'mother'؟",
       options: ["أب", "أم", "أخ", "أخت"],
       correct: 1,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    
+    // Additional Basic Quiz Questions - English Learning (Unique from Enhanced)
+    {
+      id: 71,
+      type: "multiple_choice",
+      question: "ما هي الكلمة الإنجليزية لكلمة 'أكل'؟",
+      options: ["eat", "drink", "sleep", "walk"],
+      correct: 0,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 72,
+      type: "true_false",
+      question: "كلمة 'car' الإنجليزية تعني 'سيارة' بالعربية.",
+      correct: true,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 73,
+      type: "short_answer",
+      question: "ما هي الكلمة الإنجليزية لكلمة 'سماء'؟",
+      answer: "sky",
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 74,
+      type: "multiple_choice",
+      question: "ما هي الكلمة الإنجليزية لكلمة 'شمس'؟",
+      options: ["moon", "sun", "star", "cloud"],
+      correct: 1,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 75,
+      type: "true_false",
+      question: "كلمة 'tree' الإنجليزية تعني 'شجرة' بالعربية.",
+      correct: true,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 76,
+      type: "fill_blank",
+      question: "أكمل: I see a _____ (شجرة)",
+      options: ["tree", "car", "house", "book"],
+      blank: "tree",
+      correct: 0,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 77,
+      type: "multiple_choice",
+      question: "ما هي الكلمة الإنجليزية لكلمة 'قمر'؟",
+      options: ["sun", "moon", "star", "planet"],
+      correct: 1,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 78,
+      type: "short_answer",
+      question: "ما هي الكلمة الإنجليزية لكلمة 'أرض'؟",
+      answer: "earth",
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 79,
+      type: "true_false",
+      question: "كلمة 'flower' الإنجليزية تعني 'زهرة' بالعربية.",
+      correct: true,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 80,
+      type: "multiple_choice",
+      question: "ما هي الكلمة الإنجليزية لكلمة 'نهر'؟",
+      options: ["mountain", "river", "lake", "ocean"],
+      correct: 1,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    
+    // Additional Basic Quiz Questions - Arabic Learning (Unique from Enhanced)
+    {
+      id: 81,
+      type: "multiple_choice",
+      question: "ما هي الكلمة العربية لكلمة 'eat'؟",
+      options: ["أكل", "شرب", "نام", "مشى"],
+      correct: 0,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 82,
+      type: "true_false",
+      question: "كلمة 'car' الإنجليزية تعني 'سيارة' بالعربية.",
+      correct: true,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 83,
+      type: "short_answer",
+      question: "ما هي الكلمة العربية لكلمة 'sky'؟",
+      answer: "سماء",
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 84,
+      type: "multiple_choice",
+      question: "ما هي الكلمة العربية لكلمة 'sun'؟",
+      options: ["قمر", "شمس", "نجمة", "سحابة"],
+      correct: 1,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 85,
+      type: "true_false",
+      question: "كلمة 'tree' الإنجليزية تعني 'شجرة' بالعربية.",
+      correct: true,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 86,
+      type: "fill_blank",
+      question: "أكمل: أنا أرى _____ (tree)",
+      options: ["شجرة", "سيارة", "بيت", "كتاب"],
+      blank: "شجرة",
+      correct: 0,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 87,
+      type: "multiple_choice",
+      question: "ما هي الكلمة العربية لكلمة 'moon'؟",
+      options: ["شمس", "قمر", "نجمة", "كوكب"],
+      correct: 1,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 88,
+      type: "short_answer",
+      question: "ما هي الكلمة العربية لكلمة 'earth'؟",
+      answer: "أرض",
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 89,
+      type: "true_false",
+      question: "كلمة 'flower' الإنجليزية تعني 'زهرة' بالعربية.",
+      correct: true,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 90,
+      type: "multiple_choice",
+      question: "ما هي الكلمة العربية لكلمة 'river'؟",
+      options: ["جبل", "نهر", "بحيرة", "محيط"],
+      correct: 1,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    
+    // More Basic Quiz Questions - Daily Life (English)
+    {
+      id: 91,
+      type: "multiple_choice",
+      question: "ما هي الكلمة الإنجليزية لكلمة 'ملابس'؟",
+      options: ["clothes", "shoes", "hat", "bag"],
+      correct: 0,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 92,
+      type: "true_false",
+      question: "كلمة 'shoes' الإنجليزية تعني 'أحذية' بالعربية.",
+      correct: true,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 93,
+      type: "short_answer",
+      question: "ما هي الكلمة الإنجليزية لكلمة 'سرير'؟",
+      answer: "bed",
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 94,
+      type: "multiple_choice",
+      question: "ما هي الكلمة الإنجليزية لكلمة 'طاولة'؟",
+      options: ["chair", "table", "desk", "shelf"],
+      correct: 1,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    {
+      id: 95,
+      type: "true_false",
+      question: "كلمة 'chair' الإنجليزية تعني 'كرسي' بالعربية.",
+      correct: true,
+      difficulty: "beginner",
+      category: "english_language"
+    },
+    
+    // More Basic Quiz Questions - Daily Life (Arabic)
+    {
+      id: 96,
+      type: "multiple_choice",
+      question: "ما هي الكلمة العربية لكلمة 'clothes'؟",
+      options: ["ملابس", "أحذية", "قبعة", "حقيبة"],
+      correct: 0,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 97,
+      type: "true_false",
+      question: "كلمة 'shoes' الإنجليزية تعني 'أحذية' بالعربية.",
+      correct: true,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 98,
+      type: "short_answer",
+      question: "ما هي الكلمة العربية لكلمة 'bed'؟",
+      answer: "سرير",
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 99,
+      type: "multiple_choice",
+      question: "ما هي الكلمة العربية لكلمة 'table'؟",
+      options: ["كرسي", "طاولة", "مكتب", "رف"],
+      correct: 1,
+      difficulty: "beginner",
+      category: "arabic_language"
+    },
+    {
+      id: 100,
+      type: "true_false",
+      question: "كلمة 'chair' الإنجليزية تعني 'كرسي' بالعربية.",
+      correct: true,
       difficulty: "beginner",
       category: "arabic_language"
     }

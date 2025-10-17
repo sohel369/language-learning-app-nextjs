@@ -1,372 +1,260 @@
-'use client';
+// AI Pronunciation Coach Component
+// Records user voice and compares with target pronunciation
 
-import { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Volume2, VolumeX, RotateCcw, CheckCircle, XCircle, Brain, Zap } from 'lucide-react';
-
-interface PronunciationResult {
-  word: string;
-  accuracy: number;
-  feedback: string;
-  suggestions: string[];
-  phonemes: string[];
-  stress: number;
-  rhythm: number;
-}
+import React, { useState, useRef, useCallback } from 'react';
 
 interface AIPronunciationCoachProps {
   targetWord: string;
   targetLanguage: string;
-  onComplete?: (result: PronunciationResult) => void;
-  onProgress?: (progress: number) => void;
+  onPronunciationComplete?: (score: number) => void;
+  className?: string;
 }
 
-export default function AIPronunciationCoach({ 
-  targetWord, 
-  targetLanguage, 
-  onComplete, 
-  onProgress 
-}: AIPronunciationCoachProps) {
+const AIPronunciationCoach: React.FC<AIPronunciationCoachProps> = ({
+  targetWord,
+  targetLanguage,
+  onPronunciationComplete,
+  className = ''
+}) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [result, setResult] = useState<PronunciationResult | null>(null);
-  const [audioLevel, setAudioLevel] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [attempts, setAttempts] = useState(0);
-  const [bestScore, setBestScore] = useState(0);
+  const [pronunciationScore, setPronunciationScore] = useState<number | null>(null);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const animationRef = useRef<number | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const recordingStartTimeRef = useRef<number>(0);
 
-  useEffect(() => {
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-      }
-    };
-  }, []);
-
-  const startRecording = async () => {
+  // Start recording
+  const startRecording = useCallback(async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setError(null);
+      setPronunciationScore(null);
       
-      // Set up audio analysis for visual feedback
-      audioContextRef.current = new AudioContext();
-      const source = audioContextRef.current.createMediaStreamSource(stream);
-      analyserRef.current = audioContextRef.current.createAnalyser();
-      analyserRef.current.fftSize = 256;
-      source.connect(analyserRef.current);
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: 44100
+        } 
+      });
       
-      // Start audio level monitoring
-      monitorAudioLevel();
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm;codecs=opus'
+      });
       
-      // Set up media recorder
-      mediaRecorderRef.current = new MediaRecorder(stream);
-      const audioChunks: Blob[] = [];
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
       
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        audioChunks.push(event.data);
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
       };
       
-      mediaRecorderRef.current.onstop = async () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-        await processAudio(audioBlob);
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        processRecording(audioBlob);
+        
+        // Stop all tracks
         stream.getTracks().forEach(track => track.stop());
       };
       
-      mediaRecorderRef.current.start();
+      mediaRecorder.start();
       setIsRecording(true);
-      setAttempts(prev => prev + 1);
+      recordingStartTimeRef.current = Date.now();
       
-    } catch (error) {
-      console.error('Error accessing microphone:', error);
-      alert('Microphone access is required for pronunciation practice.');
+      // Start timer
+      timerRef.current = setInterval(() => {
+        setRecordingTime(Math.floor((Date.now() - recordingStartTimeRef.current) / 1000));
+      }, 100);
+      
+    } catch (err) {
+      console.error('Error starting recording:', err);
+      setError('Microphone access denied. Please allow microphone access to use pronunciation coach.');
     }
-  };
+  }, []);
 
-  const stopRecording = () => {
+  // Stop recording
+  const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-      setIsProcessing(true);
-    }
-  };
-
-  const monitorAudioLevel = () => {
-    if (!analyserRef.current) return;
-    
-    const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-    
-    const updateLevel = () => {
-      if (analyserRef.current && isRecording) {
-        analyserRef.current.getByteFrequencyData(dataArray);
-        const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
-        setAudioLevel(average);
-        animationRef.current = requestAnimationFrame(updateLevel);
+      
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
       }
-    };
-    
-    updateLevel();
-  };
+    }
+  }, [isRecording]);
 
-  const processAudio = async (audioBlob: Blob) => {
+  // Process recording and calculate pronunciation score
+  const processRecording = useCallback(async (audioBlob: Blob) => {
+    setIsProcessing(true);
+    
     try {
-      // Simulate AI processing (in real implementation, this would call an AI service)
+      // Simulate AI processing (in a real app, this would call an AI service)
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Generate mock pronunciation analysis
-      const mockResult: PronunciationResult = {
-        word: targetWord,
-        accuracy: Math.random() * 40 + 60, // 60-100% accuracy
-        feedback: generateFeedback(targetWord, targetLanguage),
-        suggestions: generateSuggestions(targetWord, targetLanguage),
-        phonemes: generatePhonemes(targetWord, targetLanguage),
-        stress: Math.random() * 0.4 + 0.6, // 60-100% stress accuracy
-        rhythm: Math.random() * 0.3 + 0.7  // 70-100% rhythm accuracy
+      // Mock pronunciation analysis
+      const mockScore = Math.floor(Math.random() * 40) + 60; // 60-100 range
+      setPronunciationScore(mockScore);
+      
+      if (onPronunciationComplete) {
+        onPronunciationComplete(mockScore);
+      }
+      
+    } catch (err) {
+      console.error('Error processing recording:', err);
+      setError('Error processing your pronunciation. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [onPronunciationComplete]);
+
+  // Get pronunciation feedback
+  const getPronunciationFeedback = (score: number): { message: string; color: string; emoji: string } => {
+    if (score >= 90) {
+      return {
+        message: 'Excellent pronunciation!',
+        color: 'text-green-400',
+        emoji: '🎉'
       };
-      
-      setResult(mockResult);
-      setIsProcessing(false);
-      
-      if (mockResult.accuracy > bestScore) {
-        setBestScore(mockResult.accuracy);
-      }
-      
-      onComplete?.(mockResult);
-      onProgress?.(mockResult.accuracy);
-      
-    } catch (error) {
-      console.error('Error processing audio:', error);
-      setIsProcessing(false);
+    } else if (score >= 80) {
+      return {
+        message: 'Great job! Minor improvements possible.',
+        color: 'text-blue-400',
+        emoji: '👏'
+      };
+    } else if (score >= 70) {
+      return {
+        message: 'Good attempt! Keep practicing.',
+        color: 'text-yellow-400',
+        emoji: '👍'
+      };
+    } else {
+      return {
+        message: 'Keep practicing! You\'re getting better.',
+        color: 'text-orange-400',
+        emoji: '💪'
+      };
     }
   };
 
-  const generateFeedback = (word: string, language: string): string => {
-    const feedbacks = {
-      en: [
-        "Good attempt! Try to emphasize the first syllable more.",
-        "Nice pronunciation! Work on the vowel sounds.",
-        "Great job! Your rhythm is improving.",
-        "Good effort! Focus on the consonant sounds."
-      ],
-      ar: [
-        "ممتاز! حاول التركيز على الحروف الصحيحة.",
-        "جيد جداً! اعمل على النطق الصحيح للحركات.",
-        "مجهود رائع! ركز على مخارج الحروف.",
-        "جيد! استمر في التدريب على النطق."
-      ]
-    };
-    
-    return feedbacks[language as keyof typeof feedbacks]?.[Math.floor(Math.random() * 4)] || "Good attempt!";
-  };
-
-  const generateSuggestions = (word: string, language: string): string[] => {
-    const suggestions = {
-      en: [
-        "Slow down and pronounce each syllable clearly",
-        "Focus on the stressed syllable",
-        "Practice the vowel sounds",
-        "Listen to native speakers"
-      ],
-      ar: [
-        "ركز على مخارج الحروف",
-        "تدرب على الحركات",
-        "استمع للنطق الصحيح",
-        "كرر الكلمة ببطء"
-      ]
-    };
-    
-    return suggestions[language as keyof typeof suggestions] || suggestions.en;
-  };
-
-  const generatePhonemes = (word: string, language: string): string[] => {
-    // Mock phoneme breakdown
-    return word.split('').map(char => `/ə/`); // Simplified phoneme representation
-  };
-
-  const playTargetAudio = async () => {
-    try {
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-      
-      // Use Web Speech API for text-to-speech
-      if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(targetWord);
-        utterance.lang = targetLanguage === 'ar' ? 'ar-SA' : 'en-US';
-        utterance.rate = 0.7;
-        utterance.pitch = 1;
-        
-        utterance.onstart = () => setIsPlaying(true);
-        utterance.onend = () => setIsPlaying(false);
-        utterance.onerror = () => setIsPlaying(false);
-        
-        speechSynthesis.speak(utterance);
-      }
-    } catch (error) {
-      console.error('Error playing audio:', error);
-    }
-  };
-
-  const resetPractice = () => {
-    setResult(null);
-    setAttempts(0);
-    setBestScore(0);
-    setIsProcessing(false);
-  };
-
-  const getAccuracyColor = (accuracy: number) => {
-    if (accuracy >= 90) return 'text-green-400';
-    if (accuracy >= 70) return 'text-yellow-400';
-    if (accuracy >= 50) return 'text-orange-400';
-    return 'text-red-400';
-  };
-
-  const getAccuracyIcon = (accuracy: number) => {
-    if (accuracy >= 90) return <CheckCircle className="w-6 h-6 text-green-400" />;
-    if (accuracy >= 70) return <CheckCircle className="w-6 h-6 text-yellow-400" />;
-    return <XCircle className="w-6 h-6 text-red-400" />;
+  // Format recording time
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
-    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
+    <div className={`bg-white/10 backdrop-blur-lg rounded-2xl p-6 ${className}`}>
+      <h3 className="text-xl font-bold text-white mb-4">🎤 AI Pronunciation Coach</h3>
+      
       <div className="text-center mb-6">
-        <div className="flex items-center justify-center space-x-2 mb-4">
-          <Brain className="w-8 h-8 text-purple-400" />
-          <h3 className="text-2xl font-bold text-white">AI Pronunciation Coach</h3>
+        <div className="text-2xl font-bold text-white mb-2" dir={targetLanguage === 'ar' ? 'rtl' : 'ltr'}>
+          {targetWord}
         </div>
-        <p className="text-white/70">Practice pronouncing: <span className="font-semibold text-white">{targetWord}</span></p>
+        <div className="text-sm text-blue-200">
+          Practice your pronunciation
+        </div>
       </div>
 
-      {/* Target Word Display */}
-      <div className="text-center mb-6">
-        <div className="text-4xl font-bold text-white mb-4">{targetWord}</div>
-        <button
-          onClick={playTargetAudio}
-          disabled={isPlaying}
-          className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2 mx-auto"
-        >
-          {isPlaying ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-          <span>{isPlaying ? 'Playing...' : 'Listen'}</span>
-        </button>
-      </div>
-
-      {/* Recording Interface */}
+      {/* Recording Controls */}
       <div className="text-center mb-6">
         {!isRecording && !isProcessing && (
           <button
             onClick={startRecording}
-            className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-full transition-all duration-200 transform hover:scale-105 flex items-center space-x-3 mx-auto"
+            className="bg-red-500 hover:bg-red-600 text-white p-4 rounded-full transition-all duration-300 transform hover:scale-110"
           >
-            <Mic className="w-6 h-6" />
-            <span className="text-lg font-semibold">Start Recording</span>
+            <div className="text-2xl">🎤</div>
+            <div className="text-sm mt-1">Start Recording</div>
           </button>
         )}
 
         {isRecording && (
           <div className="space-y-4">
-            <div className="flex items-center justify-center space-x-3">
+            <div className="flex items-center justify-center space-x-4">
               <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
-              <span className="text-white font-semibold">Recording...</span>
-            </div>
-            
-            {/* Audio Level Visualization */}
-            <div className="flex items-center justify-center space-x-1">
-              {Array.from({ length: 10 }, (_, i) => (
-                <div
-                  key={i}
-                  className={`w-2 h-8 rounded transition-all duration-100 ${
-                    audioLevel > i * 25 ? 'bg-red-500' : 'bg-gray-600'
-                  }`}
-                />
-              ))}
+              <div className="text-white font-mono text-lg">
+                {formatTime(recordingTime)}
+              </div>
             </div>
             
             <button
               onClick={stopRecording}
-              className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-colors flex items-center space-x-2 mx-auto"
+              className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors"
             >
-              <MicOff className="w-5 h-5" />
-              <span>Stop Recording</span>
+              Stop Recording
             </button>
           </div>
         )}
 
         {isProcessing && (
-          <div className="flex items-center justify-center space-x-3">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-400"></div>
-            <span className="text-white font-semibold">AI is analyzing your pronunciation...</span>
+          <div className="space-y-4">
+            <div className="flex items-center justify-center space-x-2">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+              <span className="text-white">Analyzing pronunciation...</span>
+            </div>
           </div>
         )}
       </div>
 
-      {/* Results */}
-      {result && (
-        <div className="space-y-4">
-          <div className="bg-white/5 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-lg font-semibold text-white">Pronunciation Analysis</h4>
-              {getAccuracyIcon(result.accuracy)}
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div className="text-center">
-                <div className={`text-2xl font-bold ${getAccuracyColor(result.accuracy)}`}>
-                  {Math.round(result.accuracy)}%
-                </div>
-                <div className="text-white/70 text-sm">Overall Accuracy</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-400">
-                  {Math.round(result.stress * 100)}%
-                </div>
-                <div className="text-white/70 text-sm">Stress Accuracy</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-400">
-                  {Math.round(result.rhythm * 100)}%
-                </div>
-                <div className="text-white/70 text-sm">Rhythm Accuracy</div>
-              </div>
-            </div>
-            
-            <div className="mb-4">
-              <h5 className="text-white font-semibold mb-2">Feedback:</h5>
-              <p className="text-white/80">{result.feedback}</p>
-            </div>
-            
-            <div className="mb-4">
-              <h5 className="text-white font-semibold mb-2">Suggestions:</h5>
-              <ul className="space-y-1">
-                {result.suggestions.map((suggestion, index) => (
-                  <li key={index} className="text-white/80 text-sm flex items-start space-x-2">
-                    <span className="text-purple-400 mt-1">•</span>
-                    <span>{suggestion}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 mb-4">
+          <div className="text-red-300 text-sm">{error}</div>
+        </div>
+      )}
+
+      {/* Pronunciation Score */}
+      {pronunciationScore !== null && (
+        <div className="text-center">
+          <div className="text-3xl font-bold text-white mb-2">
+            {pronunciationScore}%
           </div>
           
-          <div className="flex items-center justify-between">
-            <div className="text-white/70 text-sm">
-              Attempts: {attempts} | Best Score: {Math.round(bestScore)}%
-            </div>
-            <button
-              onClick={resetPractice}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
-            >
-              <RotateCcw className="w-4 h-4" />
-              <span>Try Again</span>
-            </button>
+          {(() => {
+            const feedback = getPronunciationFeedback(pronunciationScore);
+            return (
+              <div className={`${feedback.color} font-semibold mb-4`}>
+                {feedback.emoji} {feedback.message}
+              </div>
+            );
+          })()}
+          
+          {/* Progress Bar */}
+          <div className="w-full bg-white/20 rounded-full h-3 mb-4">
+            <div 
+              className="bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 h-3 rounded-full transition-all duration-1000"
+              style={{ width: `${pronunciationScore}%` }}
+            />
           </div>
+          
+          {/* Tips */}
+          <div className="text-sm text-blue-200 space-y-1">
+            <div>💡 Speak clearly and at a normal pace</div>
+            <div>💡 Listen to the target pronunciation first</div>
+            <div>💡 Practice makes perfect!</div>
+          </div>
+        </div>
+      )}
+
+      {/* Instructions */}
+      {!isRecording && !isProcessing && pronunciationScore === null && (
+        <div className="text-sm text-blue-200 space-y-2">
+          <div className="font-semibold text-white mb-2">How to use:</div>
+          <div>1. Click the microphone button</div>
+          <div>2. Say the word clearly</div>
+          <div>3. Click stop when finished</div>
+          <div>4. Get your pronunciation score!</div>
         </div>
       )}
     </div>
   );
-}
+};
+
+export default AIPronunciationCoach;

@@ -25,6 +25,7 @@ import Link from 'next/link';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { useTranslation } from '../../../hooks/useTranslation';
+import { quizAudioService } from '../../../lib/quizAudioService';
 import BottomNavigation from '../../../components/BottomNavigation';
 import ProtectedRoute from '../../../components/ProtectedRoute';
 
@@ -35,6 +36,7 @@ interface Exercise {
   description: string;
   content?: any;
   audioUrl?: string;
+  audioText?: string;
   imageUrl?: string;
   completed: boolean;
   score?: number;
@@ -48,6 +50,7 @@ interface Lesson {
   level: 'beginner' | 'intermediate' | 'advanced';
   duration: number;
   audioUrl?: string;
+  audioText?: string;
   videoUrl?: string;
   exercises: Exercise[];
   completed: boolean;
@@ -66,7 +69,6 @@ export default function LessonDetailPage() {
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [currentExercise, setCurrentExercise] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [loading, setLoading] = useState(true);
   const [exerciseResults, setExerciseResults] = useState<Record<string, any>>({});
 
@@ -88,14 +90,14 @@ export default function LessonDetailPage() {
         language: 'en',
         level: 'beginner',
         duration: 15,
-        audioUrl: '/audio/lessons/en/basic-greetings.mp3',
+        audioText: 'Basic Greetings. Learn essential English greetings and polite expressions. Hello, Hi, Good morning, Good afternoon, Good evening, How are you, Nice to meet you, Thank you, You are welcome, Goodbye.',
         exercises: [
           {
             id: 'ex1',
             type: 'listening',
             title: 'Listen and Repeat',
             description: 'Listen to the greetings and repeat them',
-            audioUrl: '/audio/lessons/en/greetings-listen.mp3',
+            audioText: 'Hello, Hi, Good morning, Good afternoon, Good evening, How are you, Nice to meet you',
             completed: false
           },
           {
@@ -103,6 +105,7 @@ export default function LessonDetailPage() {
             type: 'speaking',
             title: 'Practice Greetings',
             description: 'Practice saying hello in different situations',
+            audioText: 'Practice saying hello in different situations. Say hello to a friend, say good morning to your teacher, say nice to meet you to a new person',
             completed: false
           },
           {
@@ -110,6 +113,7 @@ export default function LessonDetailPage() {
             type: 'vocabulary',
             title: 'Greeting Words',
             description: 'Learn common greeting words and phrases',
+            audioText: 'Greeting Words. Hello, Hi, Good morning, Good afternoon, Good evening, How are you, Nice to meet you, Thank you, You are welcome, Goodbye, See you later',
             completed: false
           }
         ],
@@ -127,42 +131,26 @@ export default function LessonDetailPage() {
     }
   };
 
-  const handlePlayAudio = async (audioUrl: string) => {
+  const handlePlayAudio = async (audioText: string, language: string = 'en') => {
     try {
-      // Stop current audio if playing
-      if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
-      }
-
-      const audio = new Audio(audioUrl);
-      setCurrentAudio(audio);
       setIsPlaying(true);
-
-      audio.onended = () => {
-        setIsPlaying(false);
-        setCurrentAudio(null);
-      };
-
-      audio.onerror = () => {
-        console.error('Audio playback error');
-        setIsPlaying(false);
-      };
-
-      await audio.play();
+      
+      // Stop any current audio
+      quizAudioService.stop();
+      
+      // Use TTS to speak the lesson content
+      await quizAudioService.speak(audioText, language);
+      
     } catch (error) {
       console.error('Error playing audio:', error);
+    } finally {
       setIsPlaying(false);
     }
   };
 
   const handleStopAudio = () => {
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
-      setCurrentAudio(null);
-      setIsPlaying(false);
-    }
+    quizAudioService.stop();
+    setIsPlaying(false);
   };
 
   const handleExerciseComplete = (exerciseId: string, result: any) => {
@@ -255,9 +243,9 @@ export default function LessonDetailPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900" dir={isRTL ? 'rtl' : 'ltr'}>
-        {/* Header */}
-        <div className="p-6 border-b border-white/10">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col" dir={isRTL ? 'rtl' : 'ltr'}>
+        {/* Header - Fixed */}
+        <div className="flex-shrink-0 p-6 border-b border-white/10">
           <div className="flex items-center justify-between mb-4">
             <Link href="/lessons" className="flex items-center space-x-3 text-white hover:text-purple-300 transition-colors">
               <ArrowLeft className="w-6 h-6" />
@@ -326,13 +314,13 @@ export default function LessonDetailPage() {
           </div>
 
           {/* Audio Player */}
-          {lesson.audioUrl && (
+          {lesson.audioText && (
             <div className="mb-6">
               <button
                 onClick={() => 
                   isPlaying 
                     ? handleStopAudio() 
-                    : handlePlayAudio(lesson.audioUrl!)
+                    : handlePlayAudio(lesson.audioText!, lesson.language)
                 }
                 className="w-full flex items-center justify-center space-x-2 p-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
               >
@@ -342,15 +330,18 @@ export default function LessonDetailPage() {
                   <Play className="w-6 h-6" />
                 )}
                 <span className="text-lg">
-                  {isPlaying ? 'Pause Lesson Audio' : 'Play Lesson Audio'}
+                  {isPlaying ? 'Playing Lesson Audio...' : 'Play Lesson Audio'}
                 </span>
+                {isPlaying && (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                )}
               </button>
             </div>
           )}
         </div>
 
-        {/* Exercise Content */}
-        <div className="p-6">
+        {/* Exercise Content - Scrollable */}
+        <div className="flex-1 overflow-y-auto px-6 pb-20">
           <div className="max-w-4xl mx-auto">
             {/* Current Exercise */}
             <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 mb-6">
@@ -368,14 +359,17 @@ export default function LessonDetailPage() {
               <p className="text-white/70 mb-4">{currentExerciseData.description}</p>
 
               {/* Exercise Audio */}
-              {currentExerciseData.audioUrl && (
+              {currentExerciseData.audioText && (
                 <div className="mb-4">
                   <button
-                    onClick={() => handlePlayAudio(currentExerciseData.audioUrl!)}
+                    onClick={() => handlePlayAudio(currentExerciseData.audioText!, lesson.language)}
                     className="flex items-center space-x-2 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                   >
                     <Volume2 className="w-5 h-5" />
-                    <span>Play Exercise Audio</span>
+                    <span>{isPlaying ? 'Playing...' : 'Play Exercise Audio'}</span>
+                    {isPlaying && (
+                      <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    )}
                   </button>
                 </div>
               )}
@@ -449,8 +443,10 @@ export default function LessonDetailPage() {
           </div>
         </div>
         
-        {/* Bottom Navigation */}
-        <BottomNavigation />
+        {/* Bottom Navigation - Fixed */}
+        <div className="flex-shrink-0">
+          <BottomNavigation />
+        </div>
       </div>
     </ProtectedRoute>
   );
