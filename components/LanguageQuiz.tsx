@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
-import { supabase } from '../lib/supabase';
 import { 
   Play, 
   Pause, 
@@ -75,38 +74,81 @@ export default function LanguageQuiz({ selectedLanguages }: LanguageQuizProps) {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
-        .from('quizzes')
-        .select(`
-          *,
-          languages!inner(code, name, native_name, flag_emoji),
-          quiz_questions(*)
-        `)
-        .eq('languages.code', selectedLanguage)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error loading quizzes:', error);
+      // Use local quiz data instead of Supabase
+      const { QUIZ_QUESTIONS } = await import('../data/quizSystemData');
+      const languageQuestions = QUIZ_QUESTIONS[selectedLanguage] || [];
+      
+      if (languageQuestions.length === 0) {
+        setQuizzes([]);
         return;
       }
 
-      const formattedQuizzes: Quiz[] = data.map(quiz => ({
-        id: quiz.id,
-        title: quiz.title,
-        description: quiz.description,
-        difficulty: quiz.difficulty,
-        time_limit: quiz.time_limit,
-        language: quiz.languages.code,
-        questions: quiz.quiz_questions.map((q: any) => ({
+      // Create quiz sets by difficulty
+      const easyQuestions = languageQuestions.filter(q => q.difficulty === 'easy');
+      const mediumQuestions = languageQuestions.filter(q => q.difficulty === 'medium');
+      const hardQuestions = languageQuestions.filter(q => q.difficulty === 'hard');
+
+      const formattedQuizzes: Quiz[] = [];
+
+      // Create Easy Quiz
+      if (easyQuestions.length > 0) {
+        formattedQuizzes.push({
+          id: `${selectedLanguage}-easy`,
+          title: `Easy ${getLanguageInfo(selectedLanguage).name} Quiz`,
+          description: `Test your basic ${getLanguageInfo(selectedLanguage).name} vocabulary`,
+          difficulty: 'easy',
+          time_limit: 300, // 5 minutes
+          language: selectedLanguage,
+          questions: easyQuestions.slice(0, 5).map(q => ({
+            id: q.id,
+            question: `What is the ${selectedLanguage === 'ar' ? 'English' : getLanguageInfo(selectedLanguage).name} translation of "${q.word}"?`,
+            options: q.options,
+            correct_answer: q.correctAnswer,
+            explanation: `The correct answer is "${q.translation}"`,
+            audio_url: undefined
+          }))
+        });
+      }
+
+      // Create Medium Quiz
+      if (mediumQuestions.length > 0) {
+        formattedQuizzes.push({
+          id: `${selectedLanguage}-medium`,
+          title: `Medium ${getLanguageInfo(selectedLanguage).name} Quiz`,
+          description: `Challenge yourself with intermediate ${getLanguageInfo(selectedLanguage).name} words`,
+          difficulty: 'medium',
+          time_limit: 600, // 10 minutes
+          language: selectedLanguage,
+          questions: mediumQuestions.slice(0, 7).map(q => ({
+            id: q.id,
+            question: `What is the ${selectedLanguage === 'ar' ? 'English' : getLanguageInfo(selectedLanguage).name} translation of "${q.word}"?`,
+            options: q.options,
+            correct_answer: q.correctAnswer,
+            explanation: `The correct answer is "${q.translation}"`,
+            audio_url: undefined
+          }))
+        });
+      }
+
+      // Create Hard Quiz
+      if (hardQuestions.length > 0) {
+        formattedQuizzes.push({
+          id: `${selectedLanguage}-hard`,
+          title: `Hard ${getLanguageInfo(selectedLanguage).name} Quiz`,
+          description: `Master advanced ${getLanguageInfo(selectedLanguage).name} vocabulary`,
+          difficulty: 'hard',
+          time_limit: 900, // 15 minutes
+          language: selectedLanguage,
+          questions: hardQuestions.slice(0, 10).map(q => ({
           id: q.id,
-          question: q.question,
+            question: `What is the ${selectedLanguage === 'ar' ? 'English' : getLanguageInfo(selectedLanguage).name} translation of "${q.word}"?`,
           options: q.options,
-          correct_answer: q.correct_answer,
-          explanation: q.explanation,
-          audio_url: q.audio_url
-        }))
-      }));
+            correct_answer: q.correctAnswer,
+            explanation: `The correct answer is "${q.translation}"`,
+            audio_url: undefined
+          }))
+        });
+      }
 
       setQuizzes(formattedQuizzes);
     } catch (error) {
@@ -157,43 +199,13 @@ export default function LanguageQuiz({ selectedLanguages }: LanguageQuizProps) {
   };
 
   const handleQuizComplete = async () => {
-    if (!currentQuiz || !user) return;
+    if (!currentQuiz) return;
 
     setQuizCompleted(true);
     
-    try {
-      const xpEarned = Math.floor((score / currentQuiz.questions.length) * 100);
-      
-      // Record quiz attempt
-      const { error: attemptError } = await supabase
-        .from('user_quiz_attempts')
-        .insert({
-          user_id: user.id,
-          quiz_id: currentQuiz.id,
-          score: score,
-          total_questions: currentQuiz.questions.length,
-          correct_answers: score,
-          time_taken: currentQuiz.time_limit - timeLeft,
-          xp_earned: xpEarned
-        });
-
-      if (attemptError) {
-        console.error('Error recording quiz attempt:', attemptError);
-      }
-
-      // Update user XP
-      const { error: xpError } = await supabase
-        .rpc('update_user_xp', {
-          p_user_id: user.id,
-          p_xp: xpEarned
-        });
-
-      if (xpError) {
-        console.error('Error updating user XP:', xpError);
-      }
-    } catch (error) {
-      console.error('Error completing quiz:', error);
-    }
+    // For local quizzes, we just show the results
+    // XP and progress tracking can be added later if needed
+    console.log('Quiz completed with score:', score, 'out of', currentQuiz.questions.length);
   };
 
   const playAudio = (audioUrl: string) => {
