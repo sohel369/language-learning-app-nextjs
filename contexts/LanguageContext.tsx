@@ -69,12 +69,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   const handleSetLanguage = (language: Language) => {
     console.log('Context: Setting language to:', language);
+    console.log('Context: Previous language was:', currentLanguage);
     setCurrentLanguage(language);
     // Force a re-render by updating localStorage immediately (only on client side)
     if (typeof window !== 'undefined') {
       localStorage.setItem('selected-language', language.code);
       document.documentElement.dir = language.isRTL ? 'rtl' : 'ltr';
       document.documentElement.lang = language.code;
+      console.log('Context: Updated DOM attributes - dir:', document.documentElement.dir, 'lang:', document.documentElement.lang);
     }
   };
 
@@ -85,7 +87,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       console.warn(`No translations found for language: ${currentLanguage.code}`);
       return translations.en[key] || key;
     }
-    return (currentTranslations as any)[key] || (translations.en as any)[key] || key;
+    const translation = (currentTranslations as any)[key] || (translations.en as any)[key] || key;
+    console.log(`Translation: ${key} -> ${translation} (lang: ${currentLanguage.code})`);
+    return translation;
   };
 
   return (

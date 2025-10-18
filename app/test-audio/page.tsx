@@ -31,7 +31,7 @@ export default function TestAudioPage() {
       };
 
       audio.onerror = () => {
-        console.error('Audio file not found, trying text-to-speech...');
+        console.warn('Audio file not available, using text-to-speech fallback');
         handleTextToSpeech();
         setIsPlaying(false);
         setCurrentAudio(null);
@@ -40,7 +40,7 @@ export default function TestAudioPage() {
       // Play audio
       await audio.play();
     } catch (error) {
-      console.error('Error playing audio:', error);
+      console.warn('Audio playback failed, using text-to-speech fallback');
       handleTextToSpeech();
       setIsPlaying(false);
     }
@@ -61,8 +61,8 @@ export default function TestAudioPage() {
         setTtsPlaying(false);
       };
       
-      utterance.onerror = () => {
-        console.error('Text-to-speech error');
+      utterance.onerror = (event) => {
+        console.warn('Text-to-speech not available:', event.error);
         setTtsPlaying(false);
       };
       

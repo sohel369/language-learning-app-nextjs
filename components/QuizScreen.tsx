@@ -319,16 +319,24 @@ const QuizScreen: React.FC<QuizScreenProps> = memo(({
                 </div>
                 {!isCurrentCorrect && (
                   <div className="space-y-2">
-                    <p className="text-green-400 font-medium">
+                    <div className="text-green-400 font-medium">
                       {t('correctAnswer')}: {currentQuestionObj.answer || ''}
-                    </p>
-                    <button
+                    </div>
+                    <span
                       onClick={() => onSpeakText && onSpeakText(currentQuestionObj.answer || '', "arabic")}
-                      className="text-blue-400 flex items-center"
+                      className="text-blue-400 flex items-center cursor-pointer hover:text-blue-300"
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          onSpeakText && onSpeakText(currentQuestionObj.answer || '', "arabic");
+                        }
+                      }}
                     >
                       <Volume2 size={16} className="mr-1" />
                       Hear correct answer
-                    </button>
+                    </span>
                   </div>
                 )}
               </div>
@@ -424,15 +432,24 @@ const QuizScreen: React.FC<QuizScreenProps> = memo(({
                           index !== currentQuestionObj.correct && (
                             <X className="text-red-400" />
                           )}
-                        <button
+                        <span
                           onClick={(e) => {
                             e.stopPropagation();
                             onSpeakText && onSpeakText(option, lang);
                           }}
-                          className="text-blue-400 ml-2 hover:text-blue-300"
+                          className="text-blue-400 ml-2 hover:text-blue-300 cursor-pointer inline-flex items-center"
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              onSpeakText && onSpeakText(option, lang);
+                            }
+                          }}
                         >
                           <Volume2 size={16} />
-                        </button>
+                        </span>
                       </>
                     )}
                   </div>

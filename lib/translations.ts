@@ -68,10 +68,13 @@ export const translations = {
     dashboard: 'Dashboard',
     continueLesson: 'Continue Lesson',
     startLearning: 'Start Learning',
-    testYourself: 'Test Yourself',
-    seeRankings: 'See Rankings',
-    yourRank: 'Your Rank',
+    testYourself: 'Test yourself',
+    seeRankings: 'See rankings',
+    yourRank: 'Your rank',
     completed: 'Completed',
+    chooseLanguageDescription: 'Choose your preferred language for the app interface',
+    getHelp: 'Get help',
+    sessions: 'Sessions',
   },
   
   ar: {
@@ -146,6 +149,9 @@ export const translations = {
     seeRankings: 'شاهد التصنيفات',
     yourRank: 'ترتيبك',
     completed: 'مكتمل',
+    chooseLanguageDescription: 'اختر لغتك المفضلة لواجهة التطبيق',
+    getHelp: 'احصل على مساعدة',
+    sessions: 'جلسات',
   },
   
   nl: {

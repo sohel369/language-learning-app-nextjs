@@ -111,6 +111,29 @@ body {
   font-family: 'Noto Sans Arabic', 'Arial Unicode MS', 'Segoe UI', sans-serif;
 }
 
+/* Force visibility for RTL */
+[dir="rtl"] {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+[dir="rtl"] * {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+[dir="rtl"] main {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
+}
+
+[dir="rtl"] .dashboard-container {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: flex !important;
+}
+
 .arabic-text input,
 .arabic-text textarea {
   direction: rtl;

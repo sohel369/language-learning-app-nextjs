@@ -28,6 +28,7 @@ import BottomNavigation from '../../components/BottomNavigation';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import DashboardNotificationPopup from '../../components/DashboardNotificationPopup';
 import SettingsModal from '../../components/SettingsModal';
+import Layout from '../../components/Layout';
 
 export default function DashboardPage() {
   const { user, loading, authChecked } = useAuth();
@@ -173,7 +174,7 @@ export default function DashboardPage() {
               
               <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'}`}>
                 {/* Language Tabs */}
-                <div className={`flex bg-white/10 rounded-lg p-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <div className="flex bg-white/10 rounded-lg p-1" dir="ltr">
                   <button
                     onClick={() => handleLanguageChange('en')}
                     className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'} ${
@@ -223,8 +224,8 @@ export default function DashboardPage() {
             </div>
 
             {/* Mobile Language Selector */}
-            <div className="lg:hidden mt-3 sm:mt-4">
-              <div className={`flex bg-white/10 rounded-lg p-1 overflow-x-auto scrollbar-hide ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <div className="lg:hidden mt-3 sm:mt-4" dir="ltr">
+              <div className="flex bg-white/10 rounded-lg p-1 overflow-x-auto scrollbar-hide">
                 {languages.slice(0, 4).map((lang) => (
                   <button
                     key={lang.code}
@@ -293,13 +294,13 @@ export default function DashboardPage() {
             </div>
 
             {/* Language Selection Section - Desktop Only */}
-            <div className="hidden lg:block bg-slate-800/50 backdrop-blur-lg rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10">
+            <div className="hidden lg:block bg-slate-800/50 backdrop-blur-lg rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10" dir="ltr">
               <div className="flex items-center space-x-3 mb-4">
                 <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 <h3 className="text-lg sm:text-xl font-semibold text-white">{t('selectLanguage')}</h3>
               </div>
               <p className="text-white/70 text-sm mb-4 sm:mb-6">
-                Choose your preferred language for the app interface
+                {t('chooseLanguageDescription')}
               </p>
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -323,10 +324,10 @@ export default function DashboardPage() {
             </div>
 
             {/* Main Action Buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 ${isRTL ? 'sm:grid-flow-col-dense' : ''}`}>
               <Link
                 href="/lessons"
-                className={`bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-4 sm:py-5 lg:py-6 px-4 sm:px-6 lg:px-8 rounded-xl sm:rounded-2xl transition-all duration-200 flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2 sm:space-x-3' : 'space-x-2 sm:space-x-3'} shadow-lg hover:shadow-xl group`}
+                className={`bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-4 sm:py-5 lg:py-6 px-4 sm:px-6 lg:px-8 rounded-xl sm:rounded-2xl transition-all duration-200 flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2 sm:space-x-3' : 'space-x-2 sm:space-x-3'} shadow-lg hover:shadow-xl group ${isRTL ? 'sm:col-start-2' : ''}`}
               >
                 <BookOpen className="w-5 h-5 sm:w-6 sm:h-6" />
                 <span className="text-sm sm:text-base lg:text-lg">{t('continue')} {t('lessons')}</span>
@@ -335,7 +336,7 @@ export default function DashboardPage() {
               
               <Link
                 href="/ai-coach"
-                className={`bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-4 sm:py-5 lg:py-6 px-4 sm:px-6 lg:px-8 rounded-xl sm:rounded-2xl transition-all duration-200 flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2 sm:space-x-3' : 'space-x-2 sm:space-x-3'} shadow-lg hover:shadow-xl group`}
+                className={`bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-4 sm:py-5 lg:py-6 px-4 sm:px-6 lg:px-8 rounded-xl sm:rounded-2xl transition-all duration-200 flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2 sm:space-x-3' : 'space-x-2 sm:space-x-3'} shadow-lg hover:shadow-xl group ${isRTL ? 'sm:col-start-1' : ''}`}
               >
                 <Brain className="w-5 h-5 sm:w-6 sm:h-6" />
                 <span className="text-sm sm:text-base lg:text-lg">{t('aiCoach')}</span>
@@ -344,10 +345,10 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick Stats Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className={`grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 ${isRTL ? 'lg:grid-flow-col-dense' : ''}`}>
               <Link
                 href="/lessons"
-                className="bg-white/10 backdrop-blur-lg rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-white/20 hover:bg-white/20 transition-all duration-200 group"
+                className={`bg-white/10 backdrop-blur-lg rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-white/20 hover:bg-white/20 transition-all duration-200 group ${isRTL ? 'lg:col-start-4' : ''}`}
               >
                 <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2 sm:space-x-3' : 'space-x-2 sm:space-x-3'} mb-2 sm:mb-3`}>
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
@@ -359,12 +360,12 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div className={`text-lg sm:text-xl lg:text-2xl font-bold text-white ${isRTL ? 'text-right' : 'text-left'}`}>0</div>
-                <div className={`text-white/70 text-xs sm:text-sm ${isRTL ? 'text-right' : 'text-left'}`}>Completed</div>
+                <div className={`text-white/70 text-xs sm:text-sm ${isRTL ? 'text-right' : 'text-left'}`}>{t('completed')}</div>
               </Link>
 
               <Link
                 href="/quiz"
-                className="bg-white/10 backdrop-blur-lg rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-white/20 hover:bg-white/20 transition-all duration-200 group"
+                className={`bg-white/10 backdrop-blur-lg rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-white/20 hover:bg-white/20 transition-all duration-200 group ${isRTL ? 'lg:col-start-3' : ''}`}
               >
                 <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2 sm:space-x-3' : 'space-x-2 sm:space-x-3'} mb-2 sm:mb-3`}>
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
@@ -372,16 +373,16 @@ export default function DashboardPage() {
                   </div>
                   <div className={`min-w-0 flex-1 ${isRTL ? 'text-right' : 'text-left'}`}>
                     <div className="text-white font-semibold text-sm sm:text-base truncate">{t('quiz')}</div>
-                    <div className="text-white/70 text-xs sm:text-sm truncate">Test yourself</div>
+                    <div className="text-white/70 text-xs sm:text-sm truncate">{t('testYourself')}</div>
                   </div>
                 </div>
                 <div className={`text-lg sm:text-xl lg:text-2xl font-bold text-white ${isRTL ? 'text-right' : 'text-left'}`}>0</div>
-                <div className={`text-white/70 text-xs sm:text-sm ${isRTL ? 'text-right' : 'text-left'}`}>Completed</div>
+                <div className={`text-white/70 text-xs sm:text-sm ${isRTL ? 'text-right' : 'text-left'}`}>{t('completed')}</div>
               </Link>
 
               <Link
                 href="/leaderboard"
-                className="bg-white/10 backdrop-blur-lg rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-white/20 hover:bg-white/20 transition-all duration-200 group"
+                className={`bg-white/10 backdrop-blur-lg rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-white/20 hover:bg-white/20 transition-all duration-200 group ${isRTL ? 'lg:col-start-2' : ''}`}
               >
                 <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2 sm:space-x-3' : 'space-x-2 sm:space-x-3'} mb-2 sm:mb-3`}>
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center">
@@ -389,28 +390,28 @@ export default function DashboardPage() {
                   </div>
                   <div className={`min-w-0 flex-1 ${isRTL ? 'text-right' : 'text-left'}`}>
                     <div className="text-white font-semibold text-sm sm:text-base truncate">{t('leaderboard')}</div>
-                    <div className="text-white/70 text-xs sm:text-sm truncate">See rankings</div>
+                    <div className="text-white/70 text-xs sm:text-sm truncate">{t('seeRankings')}</div>
                   </div>
                 </div>
                 <div className={`text-lg sm:text-xl lg:text-2xl font-bold text-white ${isRTL ? 'text-right' : 'text-left'}`}>#1</div>
-                <div className={`text-white/70 text-xs sm:text-sm ${isRTL ? 'text-right' : 'text-left'}`}>Your rank</div>
+                <div className={`text-white/70 text-xs sm:text-sm ${isRTL ? 'text-right' : 'text-left'}`}>{t('yourRank')}</div>
               </Link>
 
               <Link
                 href="/ai-coach"
-                className="bg-white/10 backdrop-blur-lg rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-white/20 hover:bg-white/20 transition-all duration-200 group"
+                className={`bg-white/10 backdrop-blur-lg rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-white/20 hover:bg-white/20 transition-all duration-200 group ${isRTL ? 'lg:col-start-1' : ''}`}
               >
                 <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2 sm:space-x-3' : 'space-x-2 sm:space-x-3'} mb-2 sm:mb-3`}>
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-pink-500/20 rounded-lg flex items-center justify-center">
                     <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-pink-400" />
                   </div>
                   <div className={`min-w-0 flex-1 ${isRTL ? 'text-right' : 'text-left'}`}>
-                    <div className="text-white font-semibold text-sm sm:text-base truncate">AI Coach</div>
-                    <div className="text-white/70 text-xs sm:text-sm truncate">Get help</div>
+                    <div className="text-white font-semibold text-sm sm:text-base truncate">{t('aiCoach')}</div>
+                    <div className="text-white/70 text-xs sm:text-sm truncate">{t('getHelp')}</div>
                   </div>
                 </div>
                 <div className={`text-lg sm:text-xl lg:text-2xl font-bold text-white ${isRTL ? 'text-right' : 'text-left'}`}>0</div>
-                <div className={`text-white/70 text-xs sm:text-sm ${isRTL ? 'text-right' : 'text-left'}`}>Sessions</div>
+                <div className={`text-white/70 text-xs sm:text-sm ${isRTL ? 'text-right' : 'text-left'}`}>{t('sessions')}</div>
               </Link>
             </div>
           </div>

@@ -38,6 +38,13 @@ export default function Home() {
   const [showPWAInstall, setShowPWAInstall] = useState(true);
   const [pwaInstall, setPwaInstall] = useState<any>(null);
 
+  // Handle redirect to dashboard when user is authenticated
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
+
   // Show loading while authentication is being checked
   if (loading) {
     return (
@@ -60,13 +67,6 @@ export default function Home() {
       </div>
     );
   }
-
-  // Handle redirect to dashboard when user is authenticated
-  useEffect(() => {
-    if (user) {
-      router.push('/dashboard');
-    }
-  }, [user, router]);
 
   // If authenticated, show loading while redirecting
   if (user) {

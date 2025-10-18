@@ -325,7 +325,7 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
       };
 
       audio.onerror = () => {
-        console.error('Audio file not found:', audioUrl);
+        console.warn('Audio file not available, using text-to-speech fallback');
         // Try to use text-to-speech as fallback
         handleTextToSpeech(lesson.title, lesson.language);
         setIsPlaying(null);
@@ -335,7 +335,7 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
       // Play audio
       await audio.play();
     } catch (error) {
-      console.error('Error playing audio for lesson:', lessonId, 'in language:', selectedLanguage, error);
+      console.warn('Audio playback failed, using text-to-speech fallback');
       // Try text-to-speech fallback
       const lesson = lessons.find(l => l.id === lessonId);
       if (lesson) {
@@ -372,8 +372,8 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
         setIsPlaying(null);
       };
       
-      utterance.onerror = () => {
-        console.error('Text-to-speech error');
+      utterance.onerror = (event) => {
+        console.warn('Text-to-speech not available:', event.error);
         setIsPlaying(null);
       };
       
