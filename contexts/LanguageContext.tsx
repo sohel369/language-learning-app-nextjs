@@ -34,41 +34,48 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [currentLanguage, setCurrentLanguage] = useState<Language>(languages[0]);
 
   useEffect(() => {
-    // Load saved language from localStorage
-    const savedLanguage = localStorage.getItem('selected-language');
-    if (savedLanguage) {
-      const language = languages.find(lang => lang.code === savedLanguage);
-      if (language) {
-        setCurrentLanguage(language);
+    // Load saved language from localStorage (only on client side)
+    if (typeof window !== 'undefined') {
+      const savedLanguage = localStorage.getItem('selected-language');
+      if (savedLanguage) {
+        const language = languages.find(lang => lang.code === savedLanguage);
+        if (language) {
+          setCurrentLanguage(language);
+        }
       }
     }
   }, []);
 
   useEffect(() => {
-    // Save language to localStorage
-    localStorage.setItem('selected-language', currentLanguage.code);
-    
-    // Update document direction and language
-    document.documentElement.dir = currentLanguage.isRTL ? 'rtl' : 'ltr';
-    document.documentElement.lang = currentLanguage.code;
-    
-    // Add Arabic-specific styles for better RTL support
-    if (currentLanguage.code === 'ar') {
-      document.documentElement.classList.add('arabic-layout');
-      document.body.classList.add('arabic-text');
-    } else {
-      document.documentElement.classList.remove('arabic-layout');
-      document.body.classList.remove('arabic-text');
+    // Only run on client side
+    if (typeof window !== 'undefined') {
+      // Save language to localStorage
+      localStorage.setItem('selected-language', currentLanguage.code);
+      
+      // Update document direction and language
+      document.documentElement.dir = currentLanguage.isRTL ? 'rtl' : 'ltr';
+      document.documentElement.lang = currentLanguage.code;
+      
+      // Add Arabic-specific styles for better RTL support
+      if (currentLanguage.code === 'ar') {
+        document.documentElement.classList.add('arabic-layout');
+        document.body.classList.add('arabic-text');
+      } else {
+        document.documentElement.classList.remove('arabic-layout');
+        document.body.classList.remove('arabic-text');
+      }
     }
   }, [currentLanguage]);
 
   const handleSetLanguage = (language: Language) => {
     console.log('Context: Setting language to:', language);
     setCurrentLanguage(language);
-    // Force a re-render by updating localStorage immediately
-    localStorage.setItem('selected-language', language.code);
-    document.documentElement.dir = language.isRTL ? 'rtl' : 'ltr';
-    document.documentElement.lang = language.code;
+    // Force a re-render by updating localStorage immediately (only on client side)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('selected-language', language.code);
+      document.documentElement.dir = language.isRTL ? 'rtl' : 'ltr';
+      document.documentElement.lang = language.code;
+    }
   };
 
   // Translation function
