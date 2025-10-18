@@ -313,6 +313,18 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
         return;
       }
 
+      // Check if audio file exists before trying to play
+      try {
+        const response = await fetch(audioUrl, { method: 'HEAD' });
+        if (!response.ok) {
+          throw new Error('Audio file not found');
+        }
+      } catch (fetchError) {
+        console.log('Audio file not available, using text-to-speech fallback');
+        handleTextToSpeech(lesson.title, lesson.language);
+        return;
+      }
+
       // Create new audio element with the correct language audio
       const audio = new Audio(audioUrl);
       setCurrentAudio(audio);
@@ -324,8 +336,8 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
         setCurrentAudio(null);
       };
 
-      audio.onerror = () => {
-        console.warn('Audio file not available, using text-to-speech fallback');
+      audio.onerror = (error) => {
+        console.log('Audio playback failed, using text-to-speech fallback');
         // Try to use text-to-speech as fallback
         handleTextToSpeech(lesson.title, lesson.language);
         setIsPlaying(null);
@@ -335,7 +347,7 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
       // Play audio
       await audio.play();
     } catch (error) {
-      console.warn('Audio playback failed, using text-to-speech fallback');
+      console.log('Audio playback error, using text-to-speech fallback');
       // Try text-to-speech fallback
       const lesson = lessons.find(l => l.id === lessonId);
       if (lesson) {
@@ -347,41 +359,48 @@ export default function LanguageLessons({ userLearningLanguages, onLessonComplet
 
   const handleTextToSpeech = (text: string, language: string) => {
     if ('speechSynthesis' in window) {
-      // Stop any current speech
-      speechSynthesis.cancel();
-      
-      const utterance = new SpeechSynthesisUtterance(text);
-      
-      // Set language based on the lesson language
-      const languageMap: Record<string, string> = {
-        'en': 'en-US',
-        'ar': 'ar-SA',
-        'nl': 'nl-NL',
-        'id': 'id-ID',
-        'ms': 'ms-MY',
-        'th': 'th-TH',
-        'km': 'km-KH'
-      };
-      
-      utterance.lang = languageMap[language] || 'en-US';
-      utterance.rate = 0.8;
-      utterance.pitch = 1;
-      utterance.volume = 0.8;
-      
-      utterance.onend = () => {
+      try {
+        // Stop any current speech
+        speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        // Set language based on the lesson language
+        const languageMap: Record<string, string> = {
+          'en': 'en-US',
+          'ar': 'ar-SA',
+          'nl': 'nl-NL',
+          'id': 'id-ID',
+          'ms': 'ms-MY',
+          'th': 'th-TH',
+          'km': 'km-KH'
+        };
+        
+        utterance.lang = languageMap[language] || 'en-US';
+        utterance.rate = 0.8;
+        utterance.pitch = 1;
+        utterance.volume = 0.8;
+        
+        utterance.onend = () => {
+          setIsPlaying(null);
+        };
+        
+        utterance.onerror = (event) => {
+          console.log('Text-to-speech error:', event.error);
+          setIsPlaying(null);
+          // Show user-friendly message instead of alert
+          console.log('Audio not available for this lesson');
+        };
+        
+        speechSynthesis.speak(utterance);
+        setIsPlaying('tts');
+      } catch (error) {
+        console.log('Text-to-speech initialization failed:', error);
         setIsPlaying(null);
-      };
-      
-      utterance.onerror = (event) => {
-        console.warn('Text-to-speech not available:', event.error);
-        setIsPlaying(null);
-      };
-      
-      speechSynthesis.speak(utterance);
-      setIsPlaying('tts');
+      }
     } else {
-      console.warn('Text-to-speech not supported');
-      alert(`Audio file not available. Lesson: ${text}`);
+      console.log('Text-to-speech not supported in this browser');
+      setIsPlaying(null);
     }
   };
 

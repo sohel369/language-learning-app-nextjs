@@ -31,7 +31,7 @@ export default function TestAudioPage() {
       };
 
       audio.onerror = () => {
-        console.warn('Audio file not available, using text-to-speech fallback');
+        console.error('Audio file not found, trying text-to-speech...');
         handleTextToSpeech();
         setIsPlaying(false);
         setCurrentAudio(null);
@@ -40,7 +40,7 @@ export default function TestAudioPage() {
       // Play audio
       await audio.play();
     } catch (error) {
-      console.warn('Audio playback failed, using text-to-speech fallback');
+      console.error('Error playing audio:', error);
       handleTextToSpeech();
       setIsPlaying(false);
     }
@@ -48,28 +48,33 @@ export default function TestAudioPage() {
 
   const handleTextToSpeech = () => {
     if ('speechSynthesis' in window) {
-      // Stop any current speech
-      speechSynthesis.cancel();
-      
-      const utterance = new SpeechSynthesisUtterance(testText);
-      utterance.lang = 'en-US';
-      utterance.rate = 0.8;
-      utterance.pitch = 1;
-      utterance.volume = 0.8;
-      
-      utterance.onend = () => {
+      try {
+        // Stop any current speech
+        speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(testText);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.8;
+        utterance.pitch = 1;
+        utterance.volume = 0.8;
+        
+        utterance.onend = () => {
+          setTtsPlaying(false);
+        };
+        
+        utterance.onerror = (event) => {
+          console.log('Text-to-speech error:', event.error);
+          setTtsPlaying(false);
+        };
+        
+        speechSynthesis.speak(utterance);
+        setTtsPlaying(true);
+      } catch (error) {
+        console.log('Text-to-speech initialization failed:', error);
         setTtsPlaying(false);
-      };
-      
-      utterance.onerror = (event) => {
-        console.warn('Text-to-speech not available:', event.error);
-        setTtsPlaying(false);
-      };
-      
-      speechSynthesis.speak(utterance);
-      setTtsPlaying(true);
+      }
     } else {
-      alert('Text-to-speech not supported in this browser');
+      console.log('Text-to-speech not supported in this browser');
     }
   };
 

@@ -121,7 +121,7 @@ export default function TTSReader() {
     };
 
     utterance.onerror = (event) => {
-      console.error('Speech synthesis error:', event.error);
+      console.log('Speech synthesis error:', event.error);
       setError(`Speech synthesis error: ${event.error}`);
       setIsPlaying(false);
       setIsPaused(false);

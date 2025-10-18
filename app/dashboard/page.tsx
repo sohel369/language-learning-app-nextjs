@@ -120,7 +120,7 @@ export default function DashboardPage() {
 
   return (
     <ProtectedRoute>
-      <div className="h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col overflow-x-hidden relative" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className="h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col overflow-x-hidden relative w-full" dir={isRTL ? 'rtl' : 'ltr'}>
         {/* Responsive Header */}
         <header className="flex-shrink-0 p-3 sm:p-4 lg:p-6 border-b border-white/10">
           <div className="max-w-7xl mx-auto">
@@ -246,8 +246,8 @@ export default function DashboardPage() {
         </header>
 
         {/* Main Content - Scrollable */}
-        <main className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 pb-16 sm:pb-20">
-          <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+        <main className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 pb-16 sm:pb-20 w-full">
+          <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 w-full">
             {/* Welcome Section */}
             <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 relative overflow-hidden">
               <div className="relative z-10">
@@ -324,10 +324,10 @@ export default function DashboardPage() {
             </div>
 
             {/* Main Action Buttons */}
-            <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 ${isRTL ? 'sm:grid-flow-col-dense' : ''}`}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 w-full">
               <Link
                 href="/lessons"
-                className={`bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-4 sm:py-5 lg:py-6 px-4 sm:px-6 lg:px-8 rounded-xl sm:rounded-2xl transition-all duration-200 flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2 sm:space-x-3' : 'space-x-2 sm:space-x-3'} shadow-lg hover:shadow-xl group ${isRTL ? 'sm:col-start-2' : ''}`}
+                className={`bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-4 sm:py-5 lg:py-6 px-4 sm:px-6 lg:px-8 rounded-xl sm:rounded-2xl transition-all duration-200 flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2 sm:space-x-3' : 'space-x-2 sm:space-x-3'} shadow-lg hover:shadow-xl group`}
               >
                 <BookOpen className="w-5 h-5 sm:w-6 sm:h-6" />
                 <span className="text-sm sm:text-base lg:text-lg">{t('continue')} {t('lessons')}</span>
@@ -336,7 +336,7 @@ export default function DashboardPage() {
               
               <Link
                 href="/ai-coach"
-                className={`bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-4 sm:py-5 lg:py-6 px-4 sm:px-6 lg:px-8 rounded-xl sm:rounded-2xl transition-all duration-200 flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2 sm:space-x-3' : 'space-x-2 sm:space-x-3'} shadow-lg hover:shadow-xl group ${isRTL ? 'sm:col-start-1' : ''}`}
+                className={`bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-4 sm:py-5 lg:py-6 px-4 sm:px-6 lg:px-8 rounded-xl sm:rounded-2xl transition-all duration-200 flex items-center justify-center ${isRTL ? 'space-x-reverse space-x-2 sm:space-x-3' : 'space-x-2 sm:space-x-3'} shadow-lg hover:shadow-xl group`}
               >
                 <Brain className="w-5 h-5 sm:w-6 sm:h-6" />
                 <span className="text-sm sm:text-base lg:text-lg">{t('aiCoach')}</span>
@@ -345,10 +345,10 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick Stats Grid */}
-            <div className={`grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 ${isRTL ? 'lg:grid-flow-col-dense' : ''}`}>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
               <Link
                 href="/lessons"
-                className={`bg-white/10 backdrop-blur-lg rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-white/20 hover:bg-white/20 transition-all duration-200 group ${isRTL ? 'lg:col-start-4' : ''}`}
+                className="bg-white/10 backdrop-blur-lg rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-white/20 hover:bg-white/20 transition-all duration-200 group"
               >
                 <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2 sm:space-x-3' : 'space-x-2 sm:space-x-3'} mb-2 sm:mb-3`}>
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
@@ -365,7 +365,7 @@ export default function DashboardPage() {
 
               <Link
                 href="/quiz"
-                className={`bg-white/10 backdrop-blur-lg rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-white/20 hover:bg-white/20 transition-all duration-200 group ${isRTL ? 'lg:col-start-3' : ''}`}
+                className="bg-white/10 backdrop-blur-lg rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-white/20 hover:bg-white/20 transition-all duration-200 group"
               >
                 <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2 sm:space-x-3' : 'space-x-2 sm:space-x-3'} mb-2 sm:mb-3`}>
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
@@ -382,7 +382,7 @@ export default function DashboardPage() {
 
               <Link
                 href="/leaderboard"
-                className={`bg-white/10 backdrop-blur-lg rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-white/20 hover:bg-white/20 transition-all duration-200 group ${isRTL ? 'lg:col-start-2' : ''}`}
+                className="bg-white/10 backdrop-blur-lg rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-white/20 hover:bg-white/20 transition-all duration-200 group"
               >
                 <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2 sm:space-x-3' : 'space-x-2 sm:space-x-3'} mb-2 sm:mb-3`}>
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center">
@@ -399,7 +399,7 @@ export default function DashboardPage() {
 
               <Link
                 href="/ai-coach"
-                className={`bg-white/10 backdrop-blur-lg rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-white/20 hover:bg-white/20 transition-all duration-200 group ${isRTL ? 'lg:col-start-1' : ''}`}
+                className="bg-white/10 backdrop-blur-lg rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-white/20 hover:bg-white/20 transition-all duration-200 group"
               >
                 <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2 sm:space-x-3' : 'space-x-2 sm:space-x-3'} mb-2 sm:mb-3`}>
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-pink-500/20 rounded-lg flex items-center justify-center">
